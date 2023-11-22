@@ -322,6 +322,54 @@ int processStrExpTreeCommand(char *command, ExpTreeData *data)
     return EXIT_SUCCESS;
 }
 
+double expTreeEvaluate(Node *root, ExpTreeErrors *error)
+{
+    CHECK_POISON_PTR(root);
+    
+    if (!root)                         return 0;
+    if (root->type == EXP_TREE_NUMBER) return root->data.number;
+
+    double leftTree  = expTreeEvaluate(root->left,  error);
+    LOG("leftTree = %lg\n", leftTree);
+    double rightTree = expTreeEvaluate(root->right, error);
+    LOG("rightTree = %lg\n", rightTree);
+
+    if (*error) return DataPoison;
+
+    double nodeValue = NodeCalculate(leftTree, rightTree, root->data.operatorNum, error);
+    LOG("nodeValue = %lg\n", nodeValue);
+    return nodeValue;
+}
+
+double NodeCalculate(double leftTree, double rightTree, 
+                     ExpTreeOperators operatorType, ExpTreeErrors *error)
+{
+    switch (operatorType)
+    {
+        case ADD:
+            return leftTree + rightTree;
+
+        case SUB:
+            return leftTree - rightTree;
+
+        case MUL:
+            return leftTree * rightTree;
+
+        case DIV:
+            if (equalDouble(rightTree, 0)) 
+            { 
+                *error = DIVISION_BY_ZERO; 
+                return DataPoison; 
+            }
+            return leftTree / rightTree;
+
+        default:
+            *error = UNKNOWN_OPERATOR;
+            return DataPoison;
+    }
+    return DataPoison;
+}
+
 bool equalDouble(double a, double b)
 {
     return fabs(a - b) < PrecisionConst;

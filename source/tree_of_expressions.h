@@ -39,6 +39,13 @@ struct Tree
     int size;
 };
 
+enum ExpTreeErrors
+{
+    NO_ERROR         = 0,
+    DIVISION_BY_ZERO = 1,
+    UNKNOWN_OPERATOR = 2,
+};
+
 Node * const PtrPoison = (Node *)42;
 
 const int DataPoison = -11111111;
@@ -67,6 +74,10 @@ int processStrExpTreeCommand(char *command, ExpTreeData *data);
 
 Node *readTreePrefix(const char *fileName);
 Node *readNodePrefix(FILE *f);
+
+double expTreeEvaluate(Node *root, ExpTreeErrors *error);
+double NodeCalculate(double leftTree, double rightTree, 
+                     ExpTreeOperators operatorType, ExpTreeErrors *error);
 
 
 

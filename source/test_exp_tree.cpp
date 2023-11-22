@@ -20,5 +20,8 @@ int main()
     printTreePostfix(root, stdout);
     putchar('\n');
 
+    ExpTreeErrors error = NO_ERROR;
+    printf("expression = %lg\n", expTreeEvaluate(tree.root, &error));
+
     treeDtor(tree.root);
 }
