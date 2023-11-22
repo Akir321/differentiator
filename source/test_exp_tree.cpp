@@ -5,15 +5,15 @@
 #include "exp_tree_read.h"
 #include "tree_graphic_dump.h"
 
-const char *fileName = "exp_tree.txt";
+const char *fileName = "exp_tree2.txt";
 
 int main()
 {
     Tree tree  = {};
-    Node *root = readTreePrefix(fileName);
+    Node *root = readTreeInfix(fileName);
     tree.root = root;
 
-    //treeGraphicDump(&tree);
+    treeGraphicDump(&tree);
 
     printTreePrefix(root, stdout);
     putchar('\n');
