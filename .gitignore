@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# Dumps
+*.dot
+*.png
+
+# Logs
+*.html
+*_log.txt
+*.log
+
+
+questions.txt
+TODO.txt
