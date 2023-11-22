@@ -77,33 +77,26 @@ int printNode(Node *node, FILE *f)
     }
 }
 
+#define OPER(oper) fprintf(f, oper); return EXIT_SUCCESS
+
 int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
 {
     assert(f);
 
     switch (operatorType)
     {
-        case ADD:
-            fprintf(f, "add");
-            return EXIT_SUCCESS;
-        
-        case SUB:
-            fprintf(f, "sub");
-            return EXIT_SUCCESS;
-
-        case MUL:
-            fprintf(f, "mul");
-            return EXIT_SUCCESS;
-
-        case DIV:
-            fprintf(f, "div");
-            return EXIT_SUCCESS;
+        case ADD:    OPER("add");
+        case SUB:    OPER("sub");
+        case MUL:    OPER("mul");
+        case DIV:    OPER("div");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
             return EXIT_FAILURE;
     }
 }
+
+#undef OPER
 
 int treeCtor(Tree *tree, Node *root)
 {
@@ -257,9 +250,6 @@ Node *readNodePrefix(FILE *f)
     }
 
     ungetc(c, f);
-    c = getc(f);
-    LOG("one more: char = %c(%d)\n", c, c); 
-    ungetc(c, f);
 
     ExpTreeNodeType type = {};
     ExpTreeData     data = {};
@@ -374,6 +364,126 @@ bool equalDouble(double a, double b)
 {
     return fabs(a - b) < PrecisionConst;
 }
+
+int printTreeInfixNoUselessBrackets(Node *root, FILE *f)
+{
+    CHECK_POISON_PTR(root);
+    assert(f);
+
+    if (!root) return EXIT_SUCCESS;
+
+    if (root->type == EXP_TREE_NUMBER)
+    {
+        printNodeSymbol(root, f);
+        return EXIT_SUCCESS;
+    }
+
+    printNodeUsefulBrackets(root->left, root, f);
+    putc(' ', f);
+    
+    printNodeSymbol(root, f);
+    putc(' ', f);
+
+    printNodeUsefulBrackets(root->right, root, f);
+    //putc(' ', f);
+
+    return EXIT_SUCCESS;
+}
+
+int printNodeUsefulBrackets(Node *node, Node *parent, FILE *f)
+{
+    CHECK_POISON_PTR(node);
+    CHECK_POISON_PTR(parent);
+
+    int parentPriority = expTreeNodePriority(parent);
+    int nodePriority   = expTreeNodePriority(node);
+
+    if ((parentPriority > nodePriority) || 
+        (parentPriority == nodePriority && !isCommutative(node)))
+    {
+        putc('(', f);
+        printTreeInfixNoUselessBrackets(node, f);
+        putc(')', f);
+    }
+    else    printTreeInfixNoUselessBrackets(node, f);
+
+    return EXIT_SUCCESS;
+}
+
+int expTreeNodePriority(Node *node)
+{
+    CHECK_POISON_PTR(node);
+    if (!node) return PR_NULL;
+
+    if (node->type == EXP_TREE_NUMBER) return PR_NUMBER;
+
+    switch (node->data.operatorNum)
+    {
+    case ADD: case SUB:
+        return PR_ADD_SUB;
+    
+    case MUL: case DIV:
+        return PR_MUL_DIV;
+    
+    default:
+        return PR_UNKNOWN;
+    }
+}
+
+bool isCommutative(Node *node)
+{
+    CHECK_POISON_PTR(node);
+    if (!node) return true;
+
+    if (node->data.operatorNum == SUB ||
+        node->data.operatorNum == DIV) return false;
+
+    return true;
+}
+
+int printNodeSymbol(Node *node, FILE *f)
+{
+    CHECK_POISON_PTR(node);
+    assert(node);
+    assert(f);
+
+    switch (node->type)
+    {
+        case EXP_TREE_NOTHING: return EXIT_FAILURE;
+        
+        case EXP_TREE_NUMBER:
+            fprintf(f, ElemNumberFormat, node->data.number);
+            return EXIT_SUCCESS;
+
+        case EXP_TREE_OPERATOR:
+            return printTreeOperatorSymbol(node->data.operatorNum, f);
+
+        default:
+            LOG("ERROR: unknown NodeType: %d\n", node->type);
+            return EXIT_FAILURE;
+    }
+}
+
+#define OPER(oper) fprintf(f, oper); return EXIT_SUCCESS
+
+int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
+{
+    assert(f);
+
+    switch (operatorType)
+    {
+        case ADD:    OPER("+");
+        case SUB:    OPER("-");
+        case MUL:    OPER("*");
+        case DIV:    OPER("/");
+
+        default:
+            LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
+            return EXIT_FAILURE;
+    }
+}
+
+#undef OPER
 
 /*
 int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f)

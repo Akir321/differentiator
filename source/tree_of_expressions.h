@@ -39,6 +39,15 @@ struct Tree
     int size;
 };
 
+enum ExpTreeOperatorPriorities
+{
+    PR_UNKNOWN = -1,
+    PR_ADD_SUB = 2,
+    PR_MUL_DIV = 4,
+    PR_NUMBER  = 100,
+    PR_NULL    = 101,
+};
+
 enum ExpTreeErrors
 {
     NO_ERROR         = 0,
@@ -79,7 +88,14 @@ double expTreeEvaluate(Node *root, ExpTreeErrors *error);
 double NodeCalculate(double leftTree, double rightTree, 
                      ExpTreeOperators operatorType, ExpTreeErrors *error);
 
+int expTreeNodePriority(Node *node);
+bool isCommutative(Node *node);
 
+int printTreeInfixNoUselessBrackets(Node *root, FILE *f);
+int printNodeUsefulBrackets        (Node *node, Node *parent, FILE *f);
+
+int printNodeSymbol(Node *node, FILE *f);
+int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f);
 
 const double PrecisionConst = 0.000001;
 bool equalDouble(double a, double b);

@@ -3,7 +3,7 @@
 #include "tree_of_expressions.h"
 #include "tree_graphic_dump.h"
 
-const char *fileName = "exp_tree.txt";
+const char *fileName = "exp_tree1.txt";
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
     Node *root = readTreePrefix(fileName);
     tree.root = root;
 
-    treeGraphicDump(&tree);
+    //treeGraphicDump(&tree);
 
     printTreePrefix(root, stdout);
     putchar('\n');
@@ -22,6 +22,9 @@ int main()
 
     ExpTreeErrors error = NO_ERROR;
     printf("expression = %lg\n", expTreeEvaluate(tree.root, &error));
+
+    printTreeInfixNoUselessBrackets(tree.root, stdout);
+    putchar('\n');
 
     treeDtor(tree.root);
 }
