@@ -65,37 +65,14 @@ const int WordLength = 256;
 Node *createNode(ExpTreeNodeType type, ExpTreeData data, Node *left, Node *right);
 int destroyNode (Node **nodePtr);
 
-int printTreeOperator(ExpTreeOperators operatorType, FILE *f);
-int printNode        (Node *node, FILE *f);
-
 int treeCtor(Tree *tree, Node *root);
 
 int treeSize(Node *root);
 int treeDtor(Node *root);
 
-int printTreePrefix (Node *root, FILE *f);
-int printTreeInfix  (Node *root, FILE *f);
-int printTreePostfix(Node *root, FILE *f);
-
-int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f);
-
-int processStrExpTreeCommand(char *command, ExpTreeData *data);
-
-Node *readTreePrefix(const char *fileName);
-Node *readNodePrefix(FILE *f);
-
 double expTreeEvaluate(Node *root, ExpTreeErrors *error);
 double NodeCalculate(double leftTree, double rightTree, 
                      ExpTreeOperators operatorType, ExpTreeErrors *error);
-
-int expTreeNodePriority(Node *node);
-bool isCommutative(Node *node);
-
-int printTreeInfixNoUselessBrackets(Node *root, FILE *f);
-int printNodeUsefulBrackets        (Node *node, Node *parent, FILE *f);
-
-int printNodeSymbol(Node *node, FILE *f);
-int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f);
 
 const double PrecisionConst = 0.000001;
 bool equalDouble(double a, double b);

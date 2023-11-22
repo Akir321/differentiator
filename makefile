@@ -15,12 +15,16 @@ LOG_DIR  = log/
 
 INCLUDES =  $(SRC_DIR)tree_of_expressions.h \
 			$(SRC_DIR)tree_graphic_dump.h   \
-			$(SRC_DIR)html_logfile.h
+			$(SRC_DIR)html_logfile.h        \
+			$(SRC_DIR)exp_tree_write.h      \
+			$(SRC_DIR)exp_tree_read.h
 
 OBJECTS  =  $(OBJ_DIR)test_exp_tree.o       \
 		    $(OBJ_DIR)tree_of_expressions.o \
 			$(OBJ_DIR)tree_graphic_dump.o   \
-			$(OBJ_DIR)html_logfile.o
+			$(OBJ_DIR)html_logfile.o        \
+			$(OBJ_DIR)exp_tree_write.o      \
+			$(OBJ_DIR)exp_tree_read.o
 
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
@@ -44,6 +48,12 @@ $(OBJ_DIR)tree_graphic_dump.o:   $(SRC_DIR)tree_graphic_dump.cpp     $(INCLUDES)
 $(OBJ_DIR)html_logfile.o: $(SRC_DIR)html_logfile.cpp $(INCLUDES)
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
+$(OBJ_DIR)exp_tree_write.o: $(SRC_DIR)exp_tree_write.cpp $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
+
+$(OBJ_DIR)exp_tree_read.o: $(SRC_DIR)exp_tree_read.cpp $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
+
 
 
 .PHONY: clean clean_dumps clean_logs
@@ -56,4 +66,3 @@ clean_dumps:
 
 clean_logs:
 	rm $(LOG_DIR)*.html
-	
