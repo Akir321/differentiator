@@ -117,7 +117,7 @@ int writeTreeToDotFile(Tree *tree, FILE *f)
     dotWrite("nodeL [label = \"L\", style = filled, fillcolor = \"cornFlowerBlue\"];\n");
     dotWrite("nodeR [label = \"R\", style = filled, fillcolor = \"salmon\"];\n\n");
 
-    dotWriteNodes(tree->root, f, 0);
+    dotWriteNodes(tree, tree->root, f, 0);
     dotWrite("\n");
     dotWriteEdges(tree->root, f);
     dotWrite("}");
@@ -125,7 +125,7 @@ int writeTreeToDotFile(Tree *tree, FILE *f)
     return EXIT_SUCCESS;
 }
 
-int dotWriteNodes(Node *node, FILE *f, int rank)
+int dotWriteNodes(Tree *tree, Node *node, FILE *f, int rank)
 {
     assert(f);
 
@@ -159,6 +159,11 @@ int dotWriteNodes(Node *node, FILE *f, int rank)
             dotWrite("fillcolor = \"#66bb6a\"];\n");
             break;
         }
+        case EXP_TREE_VARIABLE:
+            dotWrite("node%p [label = \"%s\", rank = %d, ", 
+                      node, tree->names.table[node->data.variableNum].name, rank);
+            dotWrite("fillcolor = \"#b39ddb\"];\n");
+            break;
 
         default:
             dotWrite("node%p [label = \"ERROR\", rank = %d, ", node, rank);
@@ -166,8 +171,8 @@ int dotWriteNodes(Node *node, FILE *f, int rank)
             break;
     }
 
-    dotWriteNodes(node->left,  f, rank + 1);
-    dotWriteNodes(node->right, f, rank + 1);
+    dotWriteNodes(tree, node->left,  f, rank + 1);
+    dotWriteNodes(tree, node->right, f, rank + 1);
 
     return EXIT_SUCCESS;
 }

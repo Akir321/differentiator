@@ -15,33 +15,40 @@
         return 0;                                                                        \
     }
 
-Node *readTree(const char *fileName, Node * (*readNode)(FILE *f))
+int readTree(Tree *tree, const char *fileName, Node * (*readNode)(Tree *, FILE *f))
 {
     assert(fileName);
 
-    FILE *f = fopen(fileName, "r");
-    if (!f) return NULL;
+    nameTableCtor(&tree->names);
 
-    Node *root = readNode(f);
+    FILE *f = fopen(fileName, "r");
+    if (!f) return EXIT_FAILURE;
+
+    Node *root = readNode(tree, f);
     fclose(f);
 
-    return root;
+    if (!root) return EXIT_FAILURE;
+
+    tree->root = root;
+    tree->size = treeSize(tree->root);
+
+    return EXIT_SUCCESS;
 }
 
-Node *readTreePrefix(const char *fileName)
+int readTreePrefix(Tree *tree,  const char *fileName)
 {
-    return readTree(fileName, readNodePrefix);
+    return readTree(tree, fileName, readNodePrefix);
 }
 
-Node *readTreeInfix(const char *fileName)
+int readTreeInfix(Tree *tree, const char *fileName)
 {
-    return readTree(fileName, readNodeInfix);
+    return readTree(tree, fileName, readNodeInfix);
 }
 
 const int CommandLength = 32;
 #define CommandScanFormat "%31[^ (_)]"
 
-Node *readNodePrefix(FILE *f)
+Node *readNodePrefix(Tree *tree, FILE *f)
 {
     assert(f);
 
@@ -53,12 +60,12 @@ Node *readNodePrefix(FILE *f)
     {
         ExpTreeNodeType type = {};
         ExpTreeData     data = {};
-        if (readNodeData(&type, &data, f, processStrExpTreeCommand)) return NULL;
+        if (readNodeData(tree, &type, &data, f, processStrExpTreeCommand)) return NULL;
         if (type == EXP_TREE_NOTHING)                                return NULL;
 
         Node *node  = createNode(type, data, NULL, NULL);
-        node->left  = readNodePrefix(f);
-        node->right = readNodePrefix(f);
+        node->left  = readNodePrefix(tree, f);
+        node->right = readNodePrefix(tree, f);
 
         c = getc(f);
         if (c != ')') return (Node *) PtrPoison;
@@ -69,14 +76,14 @@ Node *readNodePrefix(FILE *f)
 
     ExpTreeNodeType type = {};
     ExpTreeData     data = {};
-    if (readNodeData(&type, &data, f, processStrExpTreeCommand)) return (Node *) PtrPoison;
+    if (readNodeData(tree, &type, &data, f, processStrExpTreeCommand)) return (Node *) PtrPoison;
     if (type == EXP_TREE_NOTHING)                                return NULL;
 
     return (Node *)PtrPoison;
 }
 
-int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
-                 int (*processCommand)(char *, ExpTreeData *))
+int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
+                 int (*processCommand)(Tree *, char *, ExpTreeData *, ExpTreeNodeType *))
 {
     assert(type);
     assert(data);
@@ -91,7 +98,6 @@ int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
 
     char command[CommandLength] = "";
     fscanf(f, CommandScanFormat, command);
-    LOG("command = %s\n", command);
 
     double value = 0;
     char *commandEnd = command;
@@ -105,13 +111,12 @@ int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
         return EXIT_SUCCESS;
     }
 
-    if (processCommand(command, data)) return EXIT_FAILURE;
+    if (processCommand(tree, command, data, type)) return EXIT_FAILURE;
 
-    if (!equalDouble(data->number, DataPoison)) *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
-int processStrExpTreeCommand(char *command, ExpTreeData *data)
+int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
     assert(command);
     assert(data);
@@ -123,12 +128,20 @@ int processStrExpTreeCommand(char *command, ExpTreeData *data)
     else if (strcmp(command, "mul") == 0) data->operatorNum = MUL;
     else if (strcmp(command, "div") == 0) data->operatorNum = DIV;
 
-    else                                  return EXIT_FAILURE;
+    else 
+    {
+        *type = EXP_TREE_VARIABLE;
+        data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
+        if (data->variableNum == -1) return EXIT_FAILURE;
 
+        return EXIT_SUCCESS; 
+    }      
+
+    *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
-int processStrExpTreeCommandSymbol(char *command, ExpTreeData *data)
+int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
     assert(command);
     assert(data);
@@ -140,12 +153,20 @@ int processStrExpTreeCommandSymbol(char *command, ExpTreeData *data)
     else if (strcmp(command, "*") == 0) data->operatorNum = MUL;
     else if (strcmp(command, "/") == 0) data->operatorNum = DIV;
 
-    else                                  return EXIT_FAILURE;
+    else 
+    {
+        *type = EXP_TREE_VARIABLE;
+        data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
+        if (data->variableNum == -1) return EXIT_FAILURE;
 
+        return EXIT_SUCCESS; 
+    }      
+
+    *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
-Node *readNodeInfix(FILE *f)
+Node *readNodeInfix(Tree *tree, FILE *f)
 {
     assert(f);
 
@@ -155,14 +176,14 @@ Node *readNodeInfix(FILE *f)
 
     if (c == '(')
     {
-        Node *left = readNodeInfix(f);
+        Node *left = readNodeInfix(tree, f);
 
         ExpTreeNodeType type = {};
         ExpTreeData     data = {};
-        if (readNodeData(&type, &data, f, processStrExpTreeCommandSymbol)) return NULL;
+        if (readNodeData(tree, &type, &data, f, processStrExpTreeCommandSymbol)) return NULL;
         if (type == EXP_TREE_NOTHING)                                      return NULL;
 
-        Node *right = readNodeInfix(f);
+        Node *right = readNodeInfix(tree, f);
 
         Node *node  = createNode(type, data, left, right);
 
@@ -178,7 +199,7 @@ Node *readNodeInfix(FILE *f)
 
     ExpTreeNodeType type = {};
     ExpTreeData     data = {};
-    if (readNodeData(&type, &data, f, processStrExpTreeCommandSymbol)) return (Node *) PtrPoison;
+    if (readNodeData(tree, &type, &data, f, processStrExpTreeCommandSymbol)) return (Node *) PtrPoison;
     if (type == EXP_TREE_NOTHING)                                      return NULL;
 
     return (Node *)PtrPoison;

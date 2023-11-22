@@ -13,7 +13,7 @@
         return 0;                                                                        \
     }
 
-int printNode(Node *node, FILE *f)
+int printNode(Tree *tree, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
@@ -31,6 +31,10 @@ int printNode(Node *node, FILE *f)
 
         case EXP_TREE_OPERATOR:
             return printTreeOperator(node->data.operatorNum, f);
+
+        case EXP_TREE_VARIABLE:
+            fprintf(f, "%s", tree->names.table[node->data.variableNum].name);
+            return EXIT_SUCCESS;
 
         default:
             LOG("ERROR: unknown NodeType: %d\n", node->type);
@@ -59,7 +63,7 @@ int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
 
 #undef OPER
 
-int printNodeSymbol(Node *node, FILE *f)
+int printNodeSymbol(Tree *tree, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
@@ -75,6 +79,10 @@ int printNodeSymbol(Node *node, FILE *f)
 
         case EXP_TREE_OPERATOR:
             return printTreeOperatorSymbol(node->data.operatorNum, f);
+
+        case EXP_TREE_VARIABLE:
+            fprintf(f, "%s", tree->names.table[node->data.variableNum].name);
+            return EXIT_SUCCESS;
 
         default:
             LOG("ERROR: unknown NodeType: %d\n", node->type);
@@ -103,7 +111,7 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
 
 #undef OPER
 
-int printTreePrefix(Node *root, FILE *f)
+int printTreePrefix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
     assert(f);
@@ -116,16 +124,16 @@ int printTreePrefix(Node *root, FILE *f)
 
     putc('(', f);
 
-    printNode(root, f);                  putc(' ', f);
-    printTreePrefix(root->left, f);      putc(' ', f);
-    printTreePrefix(root->right, f);   
+    printNode(tree, root, f);                  putc(' ', f);
+    printTreePrefix(tree, root->left, f);      putc(' ', f);
+    printTreePrefix(tree, root->right, f);   
 
     putc(')', f);
 
     return EXIT_SUCCESS;
 }
 
-int printTreeInfix(Node *root, FILE *f)
+int printTreeInfix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
     assert(f);
@@ -138,16 +146,16 @@ int printTreeInfix(Node *root, FILE *f)
 
     putc('(', f);
 
-    printTreeInfix(root->left, f);       putc(' ', f);
-    printNode(root, f);                  putc(' ', f);
-    printTreeInfix(root->right, f);
+    printTreeInfix(tree, root->left, f);       putc(' ', f);
+    printNode(tree, root, f);                  putc(' ', f);
+    printTreeInfix(tree, root->right, f);
 
     putc(')', f);
 
     return EXIT_SUCCESS;
 }
 
-int printTreePostfix(Node *root, FILE *f)
+int printTreePostfix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
     assert(f);
@@ -160,9 +168,9 @@ int printTreePostfix(Node *root, FILE *f)
 
     putc('(', f);
 
-    printTreePostfix(root->left, f);     putc(' ', f);
-    printTreePostfix(root->right, f);    putc(' ', f);
-    printNode(root, f);
+    printTreePostfix(tree, root->left, f);     putc(' ', f);
+    printTreePostfix(tree, root->right, f);    putc(' ', f);
+    printNode(tree, root, f);
     
     putc(')', f);
 
@@ -200,7 +208,7 @@ bool isCommutative(Node *node)
     return true;
 }
 
-int printTreeInfixNoUselessBrackets(Node *root, FILE *f)
+int printTreeInfixNoUselessBrackets(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
     assert(f);
@@ -209,18 +217,18 @@ int printTreeInfixNoUselessBrackets(Node *root, FILE *f)
 
     if (root->type == EXP_TREE_NUMBER)
     {
-        printNodeSymbol(root, f);
+        printNodeSymbol(tree, root, f);
         return EXIT_SUCCESS;
     }
 
-    printNodeUsefulBrackets(root->left, root, f);       putc(' ', f);
-    printNodeSymbol(root, f);                           putc(' ', f);
-    printNodeUsefulBrackets(root->right, root, f);    //putc(' ', f);
+    printNodeUsefulBrackets(tree, root->left, root, f);       putc(' ', f);
+    printNodeSymbol(tree, root, f);                           putc(' ', f);
+    printNodeUsefulBrackets(tree, root->right, root, f);    //putc(' ', f);
 
     return EXIT_SUCCESS;
 }
 
-int printNodeUsefulBrackets(Node *node, Node *parent, FILE *f)
+int printNodeUsefulBrackets(Tree *tree, Node *node, Node *parent, FILE *f)
 {
     CHECK_POISON_PTR(node);
     CHECK_POISON_PTR(parent);
@@ -232,10 +240,10 @@ int printNodeUsefulBrackets(Node *node, Node *parent, FILE *f)
         (parentPriority == nodePriority && !isCommutative(node)))
     {
         putc('(', f);
-        printTreeInfixNoUselessBrackets(node, f);
+        printTreeInfixNoUselessBrackets(tree, node, f);
         putc(')', f);
     }
-    else    printTreeInfixNoUselessBrackets(node, f);
+    else    printTreeInfixNoUselessBrackets(tree, node, f);
 
     return EXIT_SUCCESS;
 }

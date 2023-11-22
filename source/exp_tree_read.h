@@ -3,19 +3,19 @@
 
 #include "tree_of_expressions.h"
 
-Node *readTree(const char *fileName, Node * (*readNode)(FILE *f));
+int readTree(Tree *tree, const char *fileName, Node * (*readNode)(Tree *, FILE *f));
 
-Node *readTreePrefix(const char *fileName);
-Node *readTreeInfix (const char *fileName);
+int readTreePrefix(Tree *tree, const char *fileName);
+int readTreeInfix (Tree *tree, const char *fileName);
 
-Node *readNodePrefix(FILE *f);
-Node *readNodeInfix (FILE *f);
+Node *readNodePrefix(Tree *tree, FILE *f);
+Node *readNodeInfix (Tree *tree, FILE *f);
 
-int readNodeData(ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
-                 int (*processCommand)(char *, ExpTreeData *));
+int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
+                 int (*processCommand)(Tree *, char *, ExpTreeData *, ExpTreeNodeType *));
 
-int processStrExpTreeCommand      (char *command, ExpTreeData *data);
-int processStrExpTreeCommandSymbol(char *command, ExpTreeData *data);
+int processStrExpTreeCommand      (Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
+int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
 
 
 

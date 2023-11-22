@@ -6,6 +6,7 @@ enum ExpTreeNodeType
     EXP_TREE_NOTHING  = 0,
     EXP_TREE_NUMBER   = 1,
     EXP_TREE_OPERATOR = 2,
+    EXP_TREE_VARIABLE = 3,
 };
 
 #define ElemNumberFormat "%lg"
@@ -22,6 +23,7 @@ union ExpTreeData
 {
     double           number;
     ExpTreeOperators operatorNum;
+    int              variableNum;
 };
 
 struct Node
@@ -33,10 +35,26 @@ struct Node
     Node *right;
 };
 
+const int NamesNumber = 10;
+
+struct Name 
+{
+    char *name;
+    double value;
+};
+
+struct NameTable
+{
+    Name table[NamesNumber];
+    size_t count;
+};
+
 struct Tree
 {
     Node *root;
     int size;
+
+    NameTable names;
 };
 
 enum ExpTreeOperatorPriorities
@@ -57,20 +75,31 @@ enum ExpTreeErrors
 
 Node * const PtrPoison = (Node *)42;
 
-const int DataPoison = -11111111;
+const int  DataPoison = -11111111;
+const int IndexPoison = -1;
 
 const int WordLength = 256;
+
+const double DefaultVarValue = 0;
 
 
 Node *createNode(ExpTreeNodeType type, ExpTreeData data, Node *left, Node *right);
 int destroyNode (Node **nodePtr);
 
+int    nameTableCtor(NameTable *names);
+int    nameTableDtor(NameTable *names);
+int    nameTableAdd (NameTable *names, const char *name, double value);
+int    nameTableDump(NameTable *names, FILE *f);
+double nameTableFind(NameTable *names, const char *name);
+
 int treeCtor(Tree *tree, Node *root);
+int treeDtor(Tree *tree);
+
+int subTreeDtor(Node *root);
 
 int treeSize(Node *root);
-int treeDtor(Node *root);
 
-double expTreeEvaluate(Node *root, ExpTreeErrors *error);
+double expTreeEvaluate(Tree *tree, Node *root, ExpTreeErrors *error);
 double NodeCalculate(double leftTree, double rightTree, 
                      ExpTreeOperators operatorType, ExpTreeErrors *error);
 

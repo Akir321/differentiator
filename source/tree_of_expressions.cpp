@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include <math.h>
 
 #include "tree_of_expressions.h"
@@ -50,6 +51,80 @@ int destroyNode(Node **nodePtr)
     return EXIT_SUCCESS;
 }
 
+int nameTableCtor(NameTable *names)
+{
+    assert(names);
+
+    for (size_t i = 0; i < NamesNumber; i++)
+    {
+        names->table[i].value = DataPoison;
+        names->table[i].name  = NULL;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int nameTableDtor(NameTable *names)
+{
+    assert(names);
+
+    for (size_t i = 0; i < NamesNumber; i++)
+    {
+        names->table[i].value = DataPoison;
+
+        free(names->table[i].name);
+        names->table[i].name = NULL;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int nameTableAdd(NameTable *names, const char *name, double value)
+{
+    assert(names);
+    assert(name);
+
+    if (names->count >= NamesNumber) return IndexPoison;
+
+    names->table[names->count].name = strdup(name);
+    if (!names->table[names->count].name) return IndexPoison;
+
+    names->table[names->count].value = value;
+    names->count++;
+
+    return (int)(names->count - 1);
+}
+
+double nameTableFind(NameTable *names, const char *name)
+{
+    assert(names);
+    assert(name);
+
+    for (size_t i = 0; i < names->count; i++)
+    {
+        if (strcmp(name, names->table[i].name) == 0)
+        {
+            return (int)(names->table[i].value);
+        }
+    }
+
+    return IndexPoison;
+}
+
+int nameTableDump(NameTable *names, FILE *f)
+{
+    assert(names);
+    
+    fprintf(f, "I'm NameTable\n");
+
+    for (size_t i = 0; i < names->count; i++)
+    {
+        fprintf(f, "  [%lld] <%s> = %lg\n", i, names->table[i].name, names->table[i].value);
+    }
+
+    return EXIT_SUCCESS;
+}
+
 int treeCtor(Tree *tree, Node *root)
 {
     CHECK_POISON_PTR(root);
@@ -57,6 +132,8 @@ int treeCtor(Tree *tree, Node *root)
 
     tree->root = root;
     tree->size = treeSize(root);
+
+    nameTableCtor(&tree->names);
 
     return EXIT_SUCCESS;
 }
@@ -69,28 +146,39 @@ int treeSize(Node *root)
     return treeSize(root->left) + treeSize(root->right);
 }
 
-int treeDtor(Node *root)
+int treeDtor(Tree *tree)
+{
+    subTreeDtor  ( tree->root);
+    nameTableDtor(&tree->names);
+
+    tree->size = -1;
+
+    return EXIT_SUCCESS;
+}
+
+int subTreeDtor(Node *root)
 {
     CHECK_POISON_PTR(root);
     if (root == NULL) return 0;
 
-    treeDtor(root->left);
-    treeDtor(root->right);
+    subTreeDtor(root->left);
+    subTreeDtor(root->right);
     destroyNode(&root);
 
     return EXIT_SUCCESS;
 }
 
-double expTreeEvaluate(Node *root, ExpTreeErrors *error)
+double expTreeEvaluate(Tree *tree, Node *root, ExpTreeErrors *error)
 {
     CHECK_POISON_PTR(root);
     
-    if (!root)                         return 0;
-    if (root->type == EXP_TREE_NUMBER) return root->data.number;
+    if (!root)                           return 0;
+    if (root->type == EXP_TREE_NUMBER)   return root->data.number;
+    if (root->type == EXP_TREE_VARIABLE) return tree->names.table[root->data.variableNum].value;
 
-    double leftTree  = expTreeEvaluate(root->left,  error);
+    double leftTree  = expTreeEvaluate(tree, root->left,  error);
     LOG("leftTree = %lg\n", leftTree);
-    double rightTree = expTreeEvaluate(root->right, error);
+    double rightTree = expTreeEvaluate(tree, root->right, error);
     LOG("rightTree = %lg\n", rightTree);
 
     if (*error) return DataPoison;
