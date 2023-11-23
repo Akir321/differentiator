@@ -59,11 +59,12 @@ struct Tree
 
 enum ExpTreeOperatorPriorities
 {
-    PR_UNKNOWN = -1,
-    PR_ADD_SUB = 2,
-    PR_MUL_DIV = 4,
-    PR_NUMBER  = 100,
-    PR_NULL    = 101,
+    PR_UNKNOWN  = -1,
+    PR_ADD_SUB  = 2,
+    PR_MUL_DIV  = 4,
+    PR_NUMBER   = 100,
+    PR_VARIABLE = 101,
+    PR_NULL     = 102,
 };
 
 enum ExpTreeErrors

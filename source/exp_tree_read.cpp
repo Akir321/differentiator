@@ -132,7 +132,7 @@ int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTr
     {
         *type = EXP_TREE_VARIABLE;
         data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
-        if (data->variableNum == -1) return EXIT_FAILURE;
+        if (data->variableNum == IndexPoison) return EXIT_FAILURE;
 
         return EXIT_SUCCESS; 
     }      
@@ -157,7 +157,7 @@ int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data,
     {
         *type = EXP_TREE_VARIABLE;
         data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
-        if (data->variableNum == -1) return EXIT_FAILURE;
+        if (data->variableNum == IndexPoison) return EXIT_FAILURE;
 
         return EXIT_SUCCESS; 
     }      

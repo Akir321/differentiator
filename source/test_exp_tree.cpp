@@ -27,5 +27,7 @@ int main()
     printTreeInfixNoUselessBrackets(&tree, tree.root, stdout);
     putchar('\n');
 
+    nameTableDump(&tree.names, stdout);
+
     treeDtor(&tree);
 }

@@ -183,6 +183,7 @@ int expTreeNodePriority(Node *node)
     if (!node) return PR_NULL;
 
     if (node->type == EXP_TREE_NUMBER) return PR_NUMBER;
+    if (node->type == EXP_TREE_VARIABLE) return PR_NUMBER;
 
     switch (node->data.operatorNum)
     {
@@ -215,7 +216,8 @@ int printTreeInfixNoUselessBrackets(Tree *tree, Node *root, FILE *f)
 
     if (!root) return EXIT_SUCCESS;
 
-    if (root->type == EXP_TREE_NUMBER)
+    if (root->type == EXP_TREE_NUMBER ||
+        root->type == EXP_TREE_VARIABLE)
     {
         printNodeSymbol(tree, root, f);
         return EXIT_SUCCESS;

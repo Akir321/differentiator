@@ -6,7 +6,7 @@
 
 #include "html_logfile.h"
 
-const char *programName     = "List";
+const char *programName     = "Tree";
 const int programNameLength = 4;
 const int logFileNameLength = 64;
 
