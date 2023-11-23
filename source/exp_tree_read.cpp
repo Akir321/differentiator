@@ -47,24 +47,45 @@ int readTreeInfix(Tree *tree, const char *fileName)
     return readTree(tree, fileName, readNodeInfix);
 }
 
+int skipSpaces(FILE *f)
+{
+    assert(f);
+
+    int c = getc(f);
+    LOG("char = %c(%d)\n", c, c);
+
+    while (isspace(c) && c != EOF) 
+    { 
+        c = getc(f); 
+        LOG("char = %c(%d)\n", c, c); 
+    }
+
+    if (c == EOF) return EOF;
+
+    ungetc(c, f);
+    return EXIT_SUCCESS;
+}
+
 const int CommandLength = 32;
 #define CommandScanFormat "%31[^ (_)]"
+
+#define READ_NODE_DATA(processCommand)                                                   \
+    ExpTreeNodeType type = {};                                                           \
+    ExpTreeData     data = {};                                                           \
+    if (readNodeData(tree, &type, &data, f, processCommand)) return (Node *) PtrPoison;  \
+    if (type == EXP_TREE_NOTHING)                            return NULL;               
 
 Node *readNodePrefix(Tree *tree, FILE *f)
 {
     assert(tree);
     assert(f);
 
+    skipSpaces(f);
     int c = getc(f);
-    LOG("char = %c(%d)\n", c, c); 
-    while (isspace(c)) { c = getc(f); LOG("char = %c(%d)\n", c, c); }
     
     if (c == '(')
     {
-        ExpTreeNodeType type = {};
-        ExpTreeData     data = {};
-        if (readNodeData(tree, &type, &data, f, processStrExpTreeCommand)) return NULL;
-        if (type == EXP_TREE_NOTHING)                                return NULL;
+        READ_NODE_DATA(processStrExpTreeCommand);
 
         Node *node  = createNode(type, data, NULL, NULL);
         node->left  = readNodePrefix(tree, f);
@@ -77,10 +98,7 @@ Node *readNodePrefix(Tree *tree, FILE *f)
     }
     ungetc(c, f);
 
-    ExpTreeNodeType type = {};
-    ExpTreeData     data = {};
-    if (readNodeData(tree, &type, &data, f, processStrExpTreeCommand)) return (Node *) PtrPoison;
-    if (type == EXP_TREE_NOTHING)                                return NULL;
+    READ_NODE_DATA(processStrExpTreeCommand);
 
     return (Node *)PtrPoison;
 }
@@ -96,9 +114,7 @@ int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
     *type        = EXP_TREE_NOTHING;
     data->number = DataPoison;
 
-    int c = getc(f);
-    while (isspace(c)) { c = getc(f); }
-    ungetc(c, f);
+    skipSpaces(f);
 
     char command[CommandLength] = "";
     fscanf(f, CommandScanFormat, command);
@@ -191,25 +207,20 @@ Node *readNodeInfix(Tree *tree, FILE *f)
     assert(tree);
     assert(f);
 
+    skipSpaces(f);
     int c = getc(f);
-    LOG("char = %c(%d)\n", c, c); 
-    while (isspace(c)) { c = getc(f); LOG("char = %c(%d)\n", c, c); }
 
     if (c == '(')
     {
         Node *left = readNodeInfix(tree, f);
 
-        ExpTreeNodeType type = {};
-        ExpTreeData     data = {};
-        if (readNodeData(tree, &type, &data, f, processStrExpTreeCommandSymbol)) return NULL;
-        if (type == EXP_TREE_NOTHING)                                      return NULL;
+        READ_NODE_DATA(processStrExpTreeCommandSymbol);
 
         Node *right = readNodeInfix(tree, f);
 
         Node *node  = createNode(type, data, left, right);
 
-        c = getc(f);
-        LOG("char = %c(%d)\n", c, c); 
+        c = getc(f);    LOG("char = %c(%d)\n", c, c); 
         if (c != ')') return (Node *) PtrPoison;
 
         return node;
@@ -218,12 +229,10 @@ Node *readNodeInfix(Tree *tree, FILE *f)
     if (c == '_') return NULL;
     ungetc(c, f);
 
-    ExpTreeNodeType type = {};
-    ExpTreeData     data = {};
-    if (readNodeData(tree, &type, &data, f, processStrExpTreeCommandSymbol)) return (Node *) PtrPoison;
-    if (type == EXP_TREE_NOTHING)                                      return NULL;
+    READ_NODE_DATA(processStrExpTreeCommandSymbol);
 
     return (Node *)PtrPoison;
 }
 
 #undef CommandScanFormat
+#undef READ_NODE_DATA

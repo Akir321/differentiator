@@ -19,5 +19,7 @@ int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data,
 
 int addVariableToNameTable(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
 
+int skipSpaces(FILE *f);
+
 
 #endif //__EXP_TREE_READ_H__
