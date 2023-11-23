@@ -135,8 +135,6 @@ int treeCtor(Tree *tree, Node *root)
     tree->root = root;
     tree->size = treeSize(root);
 
-    nameTableCtor(&tree->names);
-
     return EXIT_SUCCESS;
 }
 
@@ -152,9 +150,7 @@ int treeDtor(Tree *tree)
 {
     assert(tree);
 
-    subTreeDtor  ( tree->root);
-    nameTableDtor(&tree->names);
-
+    subTreeDtor  (tree->root);
     tree->size = -1;
 
     return EXIT_SUCCESS;
@@ -172,18 +168,39 @@ int subTreeDtor(Node *root)
     return EXIT_SUCCESS;
 }
 
-double expTreeEvaluate(Tree *tree, Node *root, ExpTreeErrors *error)
+int evaluatorCtor(Evaluator *eval)
 {
-    assert(tree);
+    assert(eval);
+
+    nameTableCtor(&eval->names);
+    eval->tree.root = NULL;
+    eval->tree.size = 0;
+
+    return EXIT_SUCCESS;
+}
+
+int evaluatorDtor(Evaluator *eval)
+{
+    assert(eval);
+
+    treeDtor(&eval->tree);
+    nameTableDtor(&eval->names);
+
+    return EXIT_SUCCESS;
+}
+
+double expTreeEvaluate(Evaluator *eval, Node *root, ExpTreeErrors *error)
+{
+    assert(eval);
     CHECK_POISON_PTR(root);
     
     if (!root)                           return 0;
     if (root->type == EXP_TREE_NUMBER)   return root->data.number;
-    if (root->type == EXP_TREE_VARIABLE) return tree->names.table[root->data.variableNum].value;
+    if (root->type == EXP_TREE_VARIABLE) return eval->names.table[root->data.variableNum].value;
 
-    double leftTree  = expTreeEvaluate(tree, root->left,  error);
+    double leftTree  = expTreeEvaluate(eval, root->left,  error);
     LOG("leftTree = %lg\n", leftTree);
-    double rightTree = expTreeEvaluate(tree, root->right, error);
+    double rightTree = expTreeEvaluate(eval, root->right, error);
     LOG("rightTree = %lg\n", rightTree);
 
     if (*error) return DataPoison;

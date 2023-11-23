@@ -1,20 +1,20 @@
 #ifndef  __EXP_TREE_IO_H__
 #define  __EXP_TREE_IO_H__
 
-int printNode      (Tree *tree, Node *node, FILE *f);
-int printNodeSymbol(Tree *tree, Node *node, FILE *f);
+int printNode      (Evaluator *eval, Node *node, FILE *f);
+int printNodeSymbol(Evaluator *eval, Node *node, FILE *f);
 
 int printTreeOperator      (ExpTreeOperators operatorType, FILE *f);
 int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f);
 
-int printTreePrefix (Tree *tree, Node *root, FILE *f);
-int printTreeInfix  (Tree *tree, Node *root, FILE *f);
-int printTreePostfix(Tree *tree, Node *root, FILE *f);
+int printTreePrefix (Evaluator *eval, Node *root, FILE *f);
+int printTreeInfix  (Evaluator *eval, Node *root, FILE *f);
+int printTreePostfix(Evaluator *eval, Node *root, FILE *f);
 
 int expTreeNodePriority(Node *node);
 bool isCommutative     (Node *node);
 
-int printTreeInfixNoUselessBrackets(Tree *tree, Node *root, FILE *f);
-int printNodeUsefulBrackets        (Tree *tree, Node *node, Node *parent, FILE *f);
+int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f);
+int printNodeUsefulBrackets        (Evaluator *eval, Node *node, Node *parent, FILE *f);
 
 #endif //__EXP_TREE_IO_H__

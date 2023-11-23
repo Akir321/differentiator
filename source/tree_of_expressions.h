@@ -53,7 +53,11 @@ struct Tree
 {
     Node *root;
     int size;
+};
 
+struct Evaluator
+{
+    Tree      tree;
     NameTable names;
 };
 
@@ -97,10 +101,13 @@ int treeCtor(Tree *tree, Node *root);
 int treeDtor(Tree *tree);
 
 int subTreeDtor(Node *root);
+int treeSize   (Node *root);
 
-int treeSize(Node *root);
+int evaluatorCtor(Evaluator *eval);
+int evaluatorDtor(Evaluator *eval);
 
-double expTreeEvaluate(Tree *tree, Node *root, ExpTreeErrors *error);
+double expTreeEvaluate(Evaluator *eval, Node *root, ExpTreeErrors *error);
+
 double NodeCalculate(double leftTree, double rightTree, 
                      ExpTreeOperators operatorType, ExpTreeErrors *error);
 

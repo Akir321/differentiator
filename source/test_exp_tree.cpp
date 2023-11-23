@@ -9,25 +9,26 @@ const char *fileName = "exp_tree2.txt";
 
 int main()
 {
-    Tree tree  = {};
-    readTreeInfix(&tree, fileName);
+    Evaluator evaluator = {};
+    evaluatorCtor(&evaluator);
+    readTreeInfix(&evaluator, fileName);
 
-    treeGraphicDump(&tree);
+    treeGraphicDump(&evaluator);
 
-    printTreePrefix(&tree, tree.root, stdout);
+    printTreePrefix(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
-    printTreeInfix(&tree, tree.root, stdout);
+    printTreeInfix(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
-    printTreePostfix(&tree, tree.root, stdout);
+    printTreePostfix(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
 
     ExpTreeErrors error = NO_ERROR;
-    printf("expression = %lg\n", expTreeEvaluate(&tree, tree.root, &error));
+    printf("expression = %lg\n", expTreeEvaluate(&evaluator, evaluator.tree.root, &error));
 
-    printTreeInfixNoUselessBrackets(&tree, tree.root, stdout);
+    printTreeInfixNoUselessBrackets(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
 
-    nameTableDump(&tree.names, stdout);
+    nameTableDump(&evaluator.names, stdout);
 
-    treeDtor(&tree);
+    evaluatorDtor(&evaluator);
 }

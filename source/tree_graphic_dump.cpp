@@ -25,9 +25,9 @@ timeHolder getTime(void);
 
 static timeHolder OpenTime = getTime();
 
-int treeGraphicDump(Tree *tree)
+int treeGraphicDump(Evaluator *eval)
 {
-    assert(tree);
+    assert(eval);
 
     static int dumpNumber = 0;
     dumpNumber++;
@@ -36,7 +36,7 @@ int treeGraphicDump(Tree *tree)
 
     FILE *f = fopen(fileName, "w");
 
-    writeTreeToDotFile(tree, f);
+    writeTreeToDotFile(eval, f);
     fclose(f);
 
     char *command = NULL;
@@ -105,9 +105,9 @@ timeHolder getTime()
 
 #define dotWrite(...) fprintf(f, __VA_ARGS__)
 
-int writeTreeToDotFile(Tree *tree, FILE *f)
+int writeTreeToDotFile(Evaluator *eval, FILE *f)
 {
-    assert(tree);
+    assert(eval);
     assert(f);
 
     dotWrite("digraph\n{\n");
@@ -117,15 +117,15 @@ int writeTreeToDotFile(Tree *tree, FILE *f)
     dotWrite("nodeL [label = \"L\", style = filled, fillcolor = \"cornFlowerBlue\"];\n");
     dotWrite("nodeR [label = \"R\", style = filled, fillcolor = \"salmon\"];\n\n");
 
-    dotWriteNodes(tree, tree->root, f, 0);
+    dotWriteNodes(eval, eval->tree.root, f, 0);
     dotWrite("\n");
-    dotWriteEdges(tree->root, f);
+    dotWriteEdges(eval->tree.root, f);
     dotWrite("}");
 
     return EXIT_SUCCESS;
 }
 
-int dotWriteNodes(Tree *tree, Node *node, FILE *f, int rank)
+int dotWriteNodes(Evaluator *eval, Node *node, FILE *f, int rank)
 {
     assert(f);
 
@@ -161,7 +161,7 @@ int dotWriteNodes(Tree *tree, Node *node, FILE *f, int rank)
         }
         case EXP_TREE_VARIABLE:
             dotWrite("node%p [label = \"%s\", rank = %d, ", 
-                      node, tree->names.table[node->data.variableNum].name, rank);
+                      node, eval->names.table[node->data.variableNum].name, rank);
             dotWrite("fillcolor = \"#b39ddb\"];\n");
             break;
 
@@ -171,8 +171,8 @@ int dotWriteNodes(Tree *tree, Node *node, FILE *f, int rank)
             break;
     }
 
-    dotWriteNodes(tree, node->left,  f, rank + 1);
-    dotWriteNodes(tree, node->right, f, rank + 1);
+    dotWriteNodes(eval, node->left,  f, rank + 1);
+    dotWriteNodes(eval, node->right, f, rank + 1);
 
     return EXIT_SUCCESS;
 }

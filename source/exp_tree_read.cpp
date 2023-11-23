@@ -15,36 +15,36 @@
         return 0;                                                                        \
     }
 
-int readTree(Tree *tree, const char *fileName, Node * (*readNode)(Tree *, FILE *f))
+int readTree(Evaluator *eval, const char *fileName, Node * (*readNode)(Evaluator *, FILE *f))
 {
-    assert(tree);
+    assert(eval);
     assert(fileName);
     assert(readNode);
 
-    nameTableCtor(&tree->names);
+    nameTableCtor(&eval->names);
 
     FILE *f = fopen(fileName, "r");
     if (!f) return EXIT_FAILURE;
 
-    Node *root = readNode(tree, f);
+    Node *root = readNode(eval, f);
     fclose(f);
 
     if (!root) return EXIT_FAILURE;
 
-    tree->root = root;
-    tree->size = treeSize(tree->root);
+    eval->tree.root = root;
+    eval->tree.size = treeSize(eval->tree.root);
 
     return EXIT_SUCCESS;
 }
 
-int readTreePrefix(Tree *tree,  const char *fileName)
+int readTreePrefix(Evaluator *eval,  const char *fileName)
 {
-    return readTree(tree, fileName, readNodePrefix);
+    return readTree(eval, fileName, readNodePrefix);
 }
 
-int readTreeInfix(Tree *tree, const char *fileName)
+int readTreeInfix(Evaluator *eval, const char *fileName)
 {
-    return readTree(tree, fileName, readNodeInfix);
+    return readTree(eval, fileName, readNodeInfix);
 }
 
 int skipSpaces(FILE *f)
@@ -72,12 +72,12 @@ const int CommandLength = 32;
 #define READ_NODE_DATA(processCommand)                                                   \
     ExpTreeNodeType type = {};                                                           \
     ExpTreeData     data = {};                                                           \
-    if (readNodeData(tree, &type, &data, f, processCommand)) return (Node *) PtrPoison;  \
+    if (readNodeData(eval, &type, &data, f, processCommand)) return (Node *) PtrPoison;  \
     if (type == EXP_TREE_NOTHING)                            return NULL;               
 
-Node *readNodePrefix(Tree *tree, FILE *f)
+Node *readNodePrefix(Evaluator *eval, FILE *f)
 {
-    assert(tree);
+    assert(eval);
     assert(f);
 
     skipSpaces(f);
@@ -88,8 +88,8 @@ Node *readNodePrefix(Tree *tree, FILE *f)
         READ_NODE_DATA(processStrExpTreeCommand);
 
         Node *node  = createNode(type, data, NULL, NULL);
-        node->left  = readNodePrefix(tree, f);
-        node->right = readNodePrefix(tree, f);
+        node->left  = readNodePrefix(eval, f);
+        node->right = readNodePrefix(eval, f);
 
         c = getc(f);
         if (c != ')') return (Node *) PtrPoison;
@@ -103,10 +103,10 @@ Node *readNodePrefix(Tree *tree, FILE *f)
     return (Node *)PtrPoison;
 }
 
-int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
-                 int (*processCommand)(Tree *, char *, ExpTreeData *, ExpTreeNodeType *))
+int readNodeData(Evaluator *eval, ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
+                 int (*processCommand)(Evaluator *, char *, ExpTreeData *, ExpTreeNodeType *))
 {
-    assert(tree);
+    assert(eval);
     assert(type);
     assert(data);
     assert(f);
@@ -131,14 +131,14 @@ int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
         return EXIT_SUCCESS;
     }
 
-    if (processCommand(tree, command, data, type)) return EXIT_FAILURE;
+    if (processCommand(eval, command, data, type)) return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }
 
-int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
+int processStrExpTreeCommand(Evaluator *eval, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
-    assert(tree);
+    assert(eval);
     assert(command);
     assert(data);
 
@@ -151,16 +151,16 @@ int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTr
 
     else 
     {
-        return  addVariableToNameTable(tree, command, data, type);
+        return  addVariableToNameTable(eval, command, data, type);
     }      
 
     *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
-int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
+int processStrExpTreeCommandSymbol(Evaluator *eval, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
-    assert(tree);
+    assert(eval);
     assert(command);
     assert(data);
     assert(type);
@@ -174,16 +174,16 @@ int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data,
 
     else 
     {   
-        return  addVariableToNameTable(tree, command, data, type);
+        return  addVariableToNameTable(eval, command, data, type);
     }      
 
     *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
-int addVariableToNameTable(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
+int addVariableToNameTable(Evaluator *eval, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
-    assert(tree);
+    assert(eval);
     assert(command);
     assert(data);
     assert(type);
@@ -196,15 +196,15 @@ int addVariableToNameTable(Tree *tree, char *command, ExpTreeData *data, ExpTree
     }
 
     *type = EXP_TREE_VARIABLE;
-    data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
+    data->variableNum = nameTableAdd(&eval->names, command, DefaultVarValue);
     if (data->variableNum == IndexPoison) return EXIT_FAILURE;
 
     return EXIT_SUCCESS; 
 }
 
-Node *readNodeInfix(Tree *tree, FILE *f)
+Node *readNodeInfix(Evaluator *eval, FILE *f)
 {
-    assert(tree);
+    assert(eval);
     assert(f);
 
     skipSpaces(f);
@@ -212,11 +212,11 @@ Node *readNodeInfix(Tree *tree, FILE *f)
 
     if (c == '(')
     {
-        Node *left = readNodeInfix(tree, f);
+        Node *left = readNodeInfix(eval, f);
 
         READ_NODE_DATA(processStrExpTreeCommandSymbol);
 
-        Node *right = readNodeInfix(tree, f);
+        Node *right = readNodeInfix(eval, f);
 
         Node *node  = createNode(type, data, left, right);
 
