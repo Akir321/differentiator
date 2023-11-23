@@ -17,6 +17,7 @@ int printNode(Tree *tree, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
+    assert(tree);
     assert(f);
 
     switch (node->type)
@@ -67,6 +68,7 @@ int printNodeSymbol(Tree *tree, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
+    assert(tree);
     assert(f);
 
     switch (node->type)
@@ -114,6 +116,7 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
 int printTreePrefix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
+    assert(tree);
     assert(f);
 
     if (!root) 
@@ -136,6 +139,7 @@ int printTreePrefix(Tree *tree, Node *root, FILE *f)
 int printTreeInfix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
+    assert(tree);
     assert(f);
 
     if (!root) 
@@ -158,6 +162,7 @@ int printTreeInfix(Tree *tree, Node *root, FILE *f)
 int printTreePostfix(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
+    assert(tree);
     assert(f);
 
     if (!root) 
@@ -212,6 +217,7 @@ bool isCommutative(Node *node)
 int printTreeInfixNoUselessBrackets(Tree *tree, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
+    assert(tree);
     assert(f);
 
     if (!root) return EXIT_SUCCESS;
@@ -232,6 +238,7 @@ int printTreeInfixNoUselessBrackets(Tree *tree, Node *root, FILE *f)
 
 int printNodeUsefulBrackets(Tree *tree, Node *node, Node *parent, FILE *f)
 {
+    assert(tree);
     CHECK_POISON_PTR(node);
     CHECK_POISON_PTR(parent);
 

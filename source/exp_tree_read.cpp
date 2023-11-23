@@ -17,7 +17,9 @@
 
 int readTree(Tree *tree, const char *fileName, Node * (*readNode)(Tree *, FILE *f))
 {
+    assert(tree);
     assert(fileName);
+    assert(readNode);
 
     nameTableCtor(&tree->names);
 
@@ -50,6 +52,7 @@ const int CommandLength = 32;
 
 Node *readNodePrefix(Tree *tree, FILE *f)
 {
+    assert(tree);
     assert(f);
 
     int c = getc(f);
@@ -85,6 +88,7 @@ Node *readNodePrefix(Tree *tree, FILE *f)
 int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f, 
                  int (*processCommand)(Tree *, char *, ExpTreeData *, ExpTreeNodeType *))
 {
+    assert(tree);
     assert(type);
     assert(data);
     assert(f);
@@ -118,6 +122,7 @@ int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
 
 int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
+    assert(tree);
     assert(command);
     assert(data);
 
@@ -130,11 +135,7 @@ int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTr
 
     else 
     {
-        *type = EXP_TREE_VARIABLE;
-        data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
-        if (data->variableNum == IndexPoison) return EXIT_FAILURE;
-
-        return EXIT_SUCCESS; 
+        return  addVariableToNameTable(tree, command, data, type);
     }      
 
     *type = EXP_TREE_OPERATOR;
@@ -143,8 +144,10 @@ int processStrExpTreeCommand(Tree *tree, char *command, ExpTreeData *data, ExpTr
 
 int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
+    assert(tree);
     assert(command);
     assert(data);
+    assert(type);
 
     if      (strcmp(command, "_") == 0) return EXIT_SUCCESS;    // nil
     
@@ -154,20 +157,38 @@ int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data,
     else if (strcmp(command, "/") == 0) data->operatorNum = DIV;
 
     else 
-    {
-        *type = EXP_TREE_VARIABLE;
-        data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
-        if (data->variableNum == IndexPoison) return EXIT_FAILURE;
-
-        return EXIT_SUCCESS; 
+    {   
+        return  addVariableToNameTable(tree, command, data, type);
     }      
 
     *type = EXP_TREE_OPERATOR;
     return EXIT_SUCCESS;
 }
 
+int addVariableToNameTable(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type)
+{
+    assert(tree);
+    assert(command);
+    assert(data);
+    assert(type);
+
+    if (strlen(command) > 1)
+    {
+        LOG("ERROR: incorrect variable name: %s\n", command);
+        LOG("       only one-letter names allowed\n");
+        return EXIT_FAILURE;
+    }
+
+    *type = EXP_TREE_VARIABLE;
+    data->variableNum = nameTableAdd(&tree->names, command, DefaultVarValue);
+    if (data->variableNum == IndexPoison) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS; 
+}
+
 Node *readNodeInfix(Tree *tree, FILE *f)
 {
+    assert(tree);
     assert(f);
 
     int c = getc(f);

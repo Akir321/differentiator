@@ -17,6 +17,7 @@ int readNodeData(Tree *tree, ExpTreeNodeType *type, ExpTreeData *data, FILE *f,
 int processStrExpTreeCommand      (Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
 int processStrExpTreeCommandSymbol(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
 
+int addVariableToNameTable(Tree *tree, char *command, ExpTreeData *data, ExpTreeNodeType *type);
 
 
 #endif //__EXP_TREE_READ_H__

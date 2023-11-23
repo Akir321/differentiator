@@ -114,6 +114,7 @@ double nameTableFind(NameTable *names, const char *name)
 int nameTableDump(NameTable *names, FILE *f)
 {
     assert(names);
+    assert(f);
     
     fprintf(f, "I'm NameTable\n");
 
@@ -127,6 +128,7 @@ int nameTableDump(NameTable *names, FILE *f)
 
 int treeCtor(Tree *tree, Node *root)
 {
+    assert(tree);
     CHECK_POISON_PTR(root);
     assert(root);
 
@@ -148,6 +150,8 @@ int treeSize(Node *root)
 
 int treeDtor(Tree *tree)
 {
+    assert(tree);
+
     subTreeDtor  ( tree->root);
     nameTableDtor(&tree->names);
 
@@ -170,6 +174,7 @@ int subTreeDtor(Node *root)
 
 double expTreeEvaluate(Tree *tree, Node *root, ExpTreeErrors *error)
 {
+    assert(tree);
     CHECK_POISON_PTR(root);
     
     if (!root)                           return 0;
