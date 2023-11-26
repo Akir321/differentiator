@@ -8,6 +8,8 @@
 #include "tree_graphic_dump.h"
 #include "html_logfile.h"
 
+#include "exp_tree_write.h"
+
 #define CHECK_POISON_PTR(ptr) \
     assert(ptr != PtrPoison)
 #undef  CHECK_POISON_PTR
@@ -18,6 +20,29 @@
         LOG("ERROR: PoisonPtr detected in %s(%d) %s\n", __FILE__, __LINE__, __func__);\
         return 0;                                                                        \
     }
+
+ExpTreeData createNodeData(ExpTreeNodeType type, double value)
+{
+    ExpTreeData data = {};
+
+    switch (type)
+    {
+    case EXP_TREE_NUMBER:       data.number = value;
+                                return data;
+
+    case EXP_TREE_OPERATOR:     data.operatorNum = (ExpTreeOperators) value;
+                                return data;
+                
+    case EXP_TREE_VARIABLE:     data.variableNum = (int) value;
+                                return data;
+
+    case EXP_TREE_NOTHING:      data.number = DataPoison;
+                                return data;
+
+    default:                    data.number = DataPoison;
+                                return data;
+    }
+}
 
 Node *createNode(ExpTreeNodeType type, ExpTreeData data, Node *left, Node *right)
 {
@@ -95,16 +120,16 @@ int nameTableAdd(NameTable *names, const char *name, double value)
     return (int)(names->count - 1);
 }
 
-double nameTableFind(NameTable *names, const char *name)
+int nameTableFind(NameTable *names, const char *name)
 {
     assert(names);
     assert(name);
 
-    for (size_t i = 0; i < names->count; i++)
+    for (int i = 0; i < names->count; i++)
     {
         if (strcmp(name, names->table[i].name) == 0)
         {
-            return (int)(names->table[i].value);
+            return i;
         }
     }
 
@@ -118,9 +143,27 @@ int nameTableDump(NameTable *names, FILE *f)
     
     fprintf(f, "I'm NameTable\n");
 
-    for (size_t i = 0; i < names->count; i++)
+    if (!names->count) fprintf(f, "  no names in NameTable\n");
+
+    for (int i = 0; i < names->count; i++)
     {
-        fprintf(f, "  [%lld] <%s> = %lg\n", i, names->table[i].name, names->table[i].value);
+        fprintf(f, "  [%d] <%s> = %lg\n", i, names->table[i].name, names->table[i].value);
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int nameTableCopy(NameTable *from, NameTable *to)
+{
+    assert(from);
+    assert(to);
+
+    nameTableDtor(to);
+    nameTableCtor(to);
+
+    for (int i = 0; i < from->count; i++)
+    {
+        nameTableAdd(to, from->table[i].name, from->table[i].value);
     }
 
     return EXIT_SUCCESS;

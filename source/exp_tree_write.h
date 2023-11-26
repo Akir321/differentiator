@@ -4,6 +4,10 @@
 int printNode      (Evaluator *eval, Node *node, FILE *f);
 int printNodeSymbol(Evaluator *eval, Node *node, FILE *f);
 
+int dumpNode       (Evaluator *eval, Node *node, FILE *f);
+
+int printTreeVariable(Evaluator *eval, Node *node, FILE *f);
+
 int printTreeOperator      (ExpTreeOperators operatorType, FILE *f);
 int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f);
 

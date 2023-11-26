@@ -17,7 +17,6 @@ int printNode(Evaluator *eval, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
-    assert(eval);
     assert(f);
 
     switch (node->type)
@@ -34,13 +33,30 @@ int printNode(Evaluator *eval, Node *node, FILE *f)
             return printTreeOperator(node->data.operatorNum, f);
 
         case EXP_TREE_VARIABLE:
-            fprintf(f, "%s", eval->names.table[node->data.variableNum].name);
-            return EXIT_SUCCESS;
+            return printTreeVariable(eval, node, f);
 
         default:
             LOG("ERROR: unknown NodeType: %d\n", node->type);
             return EXIT_FAILURE;
     }
+}
+
+int dumpNode(Evaluator *eval, Node *node, FILE *f)
+{
+    if (node == PtrPoison) { fprintf(f, "Node * = PtrPoison\n"); return EXIT_FAILURE; }
+    if (node == NULL     ) { fprintf(f, "Node * = NULL\n");      return EXIT_FAILURE; }
+
+    fprintf(f, "\nI'm Node dump:\n");
+
+    fprintf(f, "    type  = %d\n", node->type);
+    fprintf(f, "    data  = ");
+    printNode(eval, node, f);    
+    putchar('\n');
+
+    fprintf(f, "    left  = %p\n", node->left);
+    fprintf(f, "    right = %p\n", node->right);
+
+    return EXIT_SUCCESS;
 }
 
 #define OPER(oper) fprintf(f, oper); return EXIT_SUCCESS
@@ -68,7 +84,6 @@ int printNodeSymbol(Evaluator *eval, Node *node, FILE *f)
 {
     CHECK_POISON_PTR(node);
     assert(node);
-    assert(eval);
     assert(f);
 
     switch (node->type)
@@ -83,13 +98,36 @@ int printNodeSymbol(Evaluator *eval, Node *node, FILE *f)
             return printTreeOperatorSymbol(node->data.operatorNum, f);
 
         case EXP_TREE_VARIABLE:
-            fprintf(f, "%s", eval->names.table[node->data.variableNum].name);
-            return EXIT_SUCCESS;
+            return printTreeVariable(eval, node, f);
 
         default:
             LOG("ERROR: unknown NodeType: %d\n", node->type);
             return EXIT_FAILURE;
     }
+}
+
+int printTreeVariable(Evaluator *eval, Node *node, FILE *f)
+{
+    CHECK_POISON_PTR(node);
+    assert(node);
+    assert(f);
+
+    int nameIndex = node->data.variableNum;
+
+    if (!eval)  fprintf(f, "<eval = null>");
+
+    else if (0 <= nameIndex && nameIndex < eval->names.count)
+    {
+        fprintf(f, "%s", eval->names.table[node->data.variableNum].name);
+    }
+
+    else      
+    { 
+        fprintf(f, "ERROR: bad nameIndex in Node: %d", nameIndex); 
+        return EXIT_FAILURE; 
+    }
+
+    return EXIT_SUCCESS;
 }
 
 #define OPER(oper) fprintf(f, oper); return EXIT_SUCCESS

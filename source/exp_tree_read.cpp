@@ -195,8 +195,15 @@ int addVariableToNameTable(Evaluator *eval, char *command, ExpTreeData *data, Ex
         return EXIT_FAILURE;
     }
 
+    int nameIndex = nameTableFind(&eval->names, command);
+
     *type = EXP_TREE_VARIABLE;
-    data->variableNum = nameTableAdd(&eval->names, command, DefaultVarValue);
+    if (nameIndex == IndexPoison) 
+    {
+         data->variableNum = nameTableAdd(&eval->names, command, DefaultVarValue);
+    }
+    else data->variableNum = nameIndex;
+    
     if (data->variableNum == IndexPoison) return EXIT_FAILURE;
 
     return EXIT_SUCCESS; 

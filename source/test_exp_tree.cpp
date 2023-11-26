@@ -5,7 +5,9 @@
 #include "exp_tree_read.h"
 #include "tree_graphic_dump.h"
 
-const char *fileName = "exp_tree2.txt";
+#include "differentiator.h"
+
+const char *fileName = "exp_tree3.txt";
 
 int main()
 {
@@ -30,5 +32,18 @@ int main()
 
     nameTableDump(&evaluator.names, stdout);
 
+    Evaluator deriv = {};
+    evaluatorCtor(&deriv);
+
+    treeCtor(&deriv.tree, derivative(&evaluator, evaluator.tree.root));
+    nameTableCopy(&evaluator.names, &deriv.names);
+
+    treeGraphicDump(&deriv);
+    printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
+    putchar('\n');
+
+    nameTableDump(&deriv.names, stdout);
+
     evaluatorDtor(&evaluator);
+    evaluatorDtor(&deriv);
 }

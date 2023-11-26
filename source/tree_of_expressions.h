@@ -46,7 +46,7 @@ struct Name
 struct NameTable
 {
     Name table[NamesNumber];
-    size_t count;
+    int  count;
 };
 
 struct Tree
@@ -88,14 +88,18 @@ const int WordLength = 256;
 const double DefaultVarValue = 0;
 
 
+ExpTreeData createNodeData(ExpTreeNodeType type, double value);
+
 Node *createNode(ExpTreeNodeType type, ExpTreeData data, Node *left, Node *right);
 int destroyNode (Node **nodePtr);
 
-int    nameTableCtor(NameTable *names);
-int    nameTableDtor(NameTable *names);
-int    nameTableAdd (NameTable *names, const char *name, double value);
-int    nameTableDump(NameTable *names, FILE *f);
-double nameTableFind(NameTable *names, const char *name);
+int nameTableCtor(NameTable *names);
+int nameTableDtor(NameTable *names);
+int nameTableAdd (NameTable *names, const char *name, double value);
+int nameTableDump(NameTable *names, FILE *f);
+int nameTableFind(NameTable *names, const char *name);
+
+int nameTableCopy(NameTable *from, NameTable *to);
 
 int treeCtor(Tree *tree, Node *root);
 int treeDtor(Tree *tree);
