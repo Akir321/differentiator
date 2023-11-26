@@ -7,7 +7,7 @@
 
 #include "differentiator.h"
 
-const char *fileName = "exp_tree3.txt";
+const char *fileName = "exp_tree4.txt";
 
 int main()
 {

@@ -284,7 +284,7 @@ int printNodeUsefulBrackets(Evaluator *eval, Node *node, Node *parent, FILE *f)
     int nodePriority   = expTreeNodePriority(node);
 
     if ((parentPriority > nodePriority) || 
-        (parentPriority == nodePriority && !isCommutative(node)))
+        (parentPriority == nodePriority && !isCommutative(parent)))
     {
         putc('(', f);
         printTreeInfixNoUselessBrackets(eval, node, f);

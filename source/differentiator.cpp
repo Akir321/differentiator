@@ -79,7 +79,7 @@ Node *processDifOperator(Evaluator *eval, Node *node)
         
         case MUL:   return _ADD(_MUL(dL, cR), _MUL(cL, dR));
 
-        case DIV:   return NULL;
+        case DIV:   return _DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR));
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
                     return PtrPoison;
