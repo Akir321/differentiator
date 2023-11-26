@@ -282,6 +282,21 @@ double NodeCalculate(double leftTree, double rightTree,
     return DataPoison;
 }
 
+bool canBeEvaluated(Node *node)
+{
+    CHECK_POISON_PTR(node);
+
+    if (!node) return true;
+    
+    if (node->type == EXP_TREE_NUMBER)   return true;
+    if (node->type == EXP_TREE_VARIABLE) return false;
+
+    bool left  = canBeEvaluated(node->left);
+    bool right = canBeEvaluated(node->right);
+
+    return left && right;
+}
+
 bool equalDouble(double a, double b)
 {
     return fabs(a - b) < PrecisionConst;

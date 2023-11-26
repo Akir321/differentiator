@@ -41,7 +41,7 @@ int treeGraphicDump(Evaluator *eval)
 
     char *command = NULL;
     __mingw_asprintf(&command, "dot %s -T png -o %s.png", fileName, fileName);
-    LOG("%s:\n<img src = ../%s.png width = 50%%>\n", "next",  fileName);
+    LOG("<img src = ../%s.png width = 50%%>\n",  fileName);
 
     system(command);
     free(fileName);

@@ -17,16 +17,6 @@ int main()
 
     treeGraphicDump(&evaluator);
 
-    printTreePrefix(&evaluator, evaluator.tree.root, stdout);
-    putchar('\n');
-    printTreeInfix(&evaluator, evaluator.tree.root, stdout);
-    putchar('\n');
-    printTreePostfix(&evaluator, evaluator.tree.root, stdout);
-    putchar('\n');
-
-    ExpTreeErrors error = NO_ERROR;
-    printf("expression = %lg\n", expTreeEvaluate(&evaluator, evaluator.tree.root, &error));
-
     printTreeInfixNoUselessBrackets(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
 
@@ -44,6 +34,31 @@ int main()
 
     nameTableDump(&deriv.names, stdout);
 
+    /*
+    expTreeSimplifyConsts(&deriv, deriv.tree.root);
+    treeGraphicDump(&deriv);
+    printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
+    putchar('\n');
+    */
+
+    expTreeSimplify(&deriv, deriv.tree.root);
+    treeGraphicDump(&deriv);
+    printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
+    putchar('\n');
+
+
     evaluatorDtor(&evaluator);
     evaluatorDtor(&deriv);
 }
+
+/*
+printTreePrefix(&evaluator, evaluator.tree.root, stdout);
+    putchar('\n');
+    printTreeInfix(&evaluator, evaluator.tree.root, stdout);
+    putchar('\n');
+    printTreePostfix(&evaluator, evaluator.tree.root, stdout);
+    putchar('\n');
+
+    ExpTreeErrors error = NO_ERROR;
+    printf("expression = %lg\n", expTreeEvaluate(&evaluator, evaluator.tree.root, &error));
+*/

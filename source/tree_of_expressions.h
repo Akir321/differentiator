@@ -73,9 +73,10 @@ enum ExpTreeOperatorPriorities
 
 enum ExpTreeErrors
 {
-    NO_ERROR         = 0,
-    DIVISION_BY_ZERO = 1,
-    UNKNOWN_OPERATOR = 2,
+    NO_ERROR          = 0,
+    DIVISION_BY_ZERO  = -1,
+    UNKNOWN_OPERATOR  = -2,
+    NODE_TYPE_NOTHING = -3,
 };
 
 Node * const PtrPoison = (Node *)42;
@@ -109,6 +110,8 @@ int treeSize   (Node *root);
 
 int evaluatorCtor(Evaluator *eval);
 int evaluatorDtor(Evaluator *eval);
+
+bool canBeEvaluated(Node *node);
 
 double expTreeEvaluate(Evaluator *eval, Node *root, ExpTreeErrors *error);
 
