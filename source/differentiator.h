@@ -8,6 +8,9 @@ Node *copy              (Evaluator *eval, Node *node);
 Node *derivative        (Evaluator *eval, Node *node);
 Node *processDifOperator(Evaluator *eval, Node *node);
 
+Node *expTreeProcessLog (Evaluator *eval, Node *node);
+
+
 int expTreeSimplify           (Evaluator *eval, Node *node);
 
 int expTreeSimplifyConsts     (Evaluator *eval, Node *node);

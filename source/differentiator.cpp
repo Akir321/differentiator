@@ -33,6 +33,8 @@
 
 #define _DIV(left, right) NEW_NODE(EXP_TREE_OPERATOR, DIV, left, right)
 
+#define _LN( left, right) NEW_NODE(EXP_TREE_OPERATOR, LN,  left, right)
+
 #define EV_L canBeEvaluated(node->left)
 #define EV_R canBeEvaluated(node->right)
 
@@ -76,6 +78,7 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 {
     assert(eval);
     assert(node);
+    CHECK_POISON_PTR(node);
 
     switch (node->data.operatorNum)
     {
@@ -86,10 +89,27 @@ Node *processDifOperator(Evaluator *eval, Node *node)
         case MUL:   return _ADD(_MUL(dL, cR), _MUL(cL, dR));
 
         case DIV:   return _DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR));
+
+        case LN:    return _DIV(dR, cR);
+
+        case LOGAR: return expTreeProcessLog(eval, node);
+
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
                     return PtrPoison;
     }
+}
+
+Node *expTreeProcessLog(Evaluator *eval, Node *node)
+{
+    assert(eval);
+    assert(node);
+
+    Node *divLns       = _DIV(_LN(NULL, cR), _LN(NULL, cL));
+    Node *logDerivative = derivative(eval, divLns);
+
+    subTreeDtor(divLns);
+    return logDerivative;
 }
 
 int expTreeSimplify(Evaluator *eval, Node *node)
@@ -197,6 +217,9 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
             COUNT(caseTimes1(eval, node, node->right, node->left));
             return EXIT_SUCCESS;
         }
+        case LN: case LOGAR:
+            return EXIT_SUCCESS;
+
         default:
             printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
             return UNKNOWN_OPERATOR;

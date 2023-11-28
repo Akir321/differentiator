@@ -253,6 +253,13 @@ double expTreeEvaluate(Evaluator *eval, Node *root, ExpTreeErrors *error)
     return nodeValue;
 }
 
+#define ERROR(expression, type) \
+    if (expression)             \
+        {                       \
+            *error = type;      \
+            return DataPoison;  \
+        }
+
 double NodeCalculate(double leftTree, double rightTree, 
                      ExpTreeOperators operatorType, ExpTreeErrors *error)
 {
@@ -268,12 +275,19 @@ double NodeCalculate(double leftTree, double rightTree,
             return leftTree * rightTree;
 
         case DIV:
-            if (equalDouble(rightTree, 0)) 
-            { 
-                *error = DIVISION_BY_ZERO; 
-                return DataPoison; 
-            }
+            ERROR(equalDouble(rightTree, 0), DIVISION_BY_ZERO);
             return leftTree / rightTree;
+
+        case LN:
+            ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+            return log(rightTree);
+
+        case LOGAR:
+            ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+            ERROR(leftTree  < 0, LOG_BAD_BASE);
+            ERROR(equalDouble(leftTree, 1), LOG_BAD_BASE);
+            
+            return log(rightTree) / log(leftTree);
 
         default:
             *error = UNKNOWN_OPERATOR;

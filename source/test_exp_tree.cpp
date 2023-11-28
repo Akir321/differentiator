@@ -7,7 +7,7 @@
 
 #include "differentiator.h"
 
-const char *fileName = "exp_tree4.txt";
+const char *fileName = "exp_tree5.txt";
 
 int main()
 {
@@ -16,6 +16,9 @@ int main()
     readTreeInfix(&evaluator, fileName);
 
     treeGraphicDump(&evaluator);
+
+    printTreePrefix(&evaluator, evaluator.tree.root, stdout);
+    putchar('\n');
 
     printTreeInfixNoUselessBrackets(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');

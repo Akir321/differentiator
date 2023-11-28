@@ -13,10 +13,12 @@ enum ExpTreeNodeType
 
 enum ExpTreeOperators
 {
-    ADD = 1,
-    SUB = 2,
-    MUL = 3,
-    DIV = 4
+    ADD   = 1,
+    SUB   = 2,
+    MUL   = 3,
+    DIV   = 4,
+    LN    = 5,
+    LOGAR = 6,
 };
 
 union ExpTreeData
@@ -66,6 +68,7 @@ enum ExpTreeOperatorPriorities
     PR_UNKNOWN  = -1,
     PR_ADD_SUB  = 2,
     PR_MUL_DIV  = 4,
+    PR_UNARY    = 23,
     PR_NUMBER   = 100,
     PR_VARIABLE = 101,
     PR_NULL     = 102,
@@ -77,6 +80,8 @@ enum ExpTreeErrors
     DIVISION_BY_ZERO  = -1,
     UNKNOWN_OPERATOR  = -2,
     NODE_TYPE_NOTHING = -3,
+    LOG_NEGATIVE_ARG  = -4,
+    LOG_BAD_BASE      = -5,
 };
 
 Node * const PtrPoison = (Node *)42;

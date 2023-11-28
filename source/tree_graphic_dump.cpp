@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include "tree_graphic_dump.h"
+#include "exp_tree_write.h"
 #include "html_logfile.h"
 
 const int DumpFileNameAddedLength = 64;
@@ -147,15 +148,9 @@ int dotWriteNodes(Evaluator *eval, Node *node, FILE *f, int rank)
 
         case EXP_TREE_OPERATOR:
         {
-            char command = 0;
-
-            if      (node->data.operatorNum == ADD) command = '+';
-            else if (node->data.operatorNum == SUB) command = '-';
-            else if (node->data.operatorNum == MUL) command = '*';
-            else if (node->data.operatorNum == DIV) command = '/';
-            else                                    command = 'n';
-
-            dotWrite("node%p [label = \"%c\", rank = %d, ", node, command, rank);
+            dotWrite("node%p [label = \"", node);
+            printNodeSymbol(eval, node, f);
+            dotWrite("\", rank = %d, ", rank);
             dotWrite("fillcolor = \"#66bb6a\"];\n");
             break;
         }

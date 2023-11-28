@@ -71,6 +71,8 @@ int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
         case SUB:    OPER("sub");
         case MUL:    OPER("mul");
         case DIV:    OPER("div");
+        case LN:     OPER("ln");
+        case LOGAR:  OPER("log");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -142,6 +144,8 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
         case SUB:    OPER("-");
         case MUL:    OPER("*");
         case DIV:    OPER("/");
+        case LN:     OPER("ln");
+        case LOGAR:  OPER("log");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -235,6 +239,9 @@ int expTreeNodePriority(Node *node)
     
     case MUL: case DIV:
         return PR_MUL_DIV;
+
+    case LN: case LOGAR:
+        return PR_UNARY;
     
     default:
         return PR_UNKNOWN;
