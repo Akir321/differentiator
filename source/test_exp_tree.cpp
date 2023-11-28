@@ -7,7 +7,7 @@
 
 #include "differentiator.h"
 
-const char *fileName = "exp_tree5.txt";
+const char *fileName = "trees_to_read/exp_tree_pow.txt";
 
 int main()
 {

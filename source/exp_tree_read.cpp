@@ -150,6 +150,7 @@ int processStrExpTreeCommand(Evaluator *eval, char *command, ExpTreeData *data, 
     else if (strcmp(command, "div") == 0) data->operatorNum = DIV;
     else if (strcmp(command, "ln")  == 0) data->operatorNum = LN;
     else if (strcmp(command, "log") == 0) data->operatorNum = LOGAR;
+    else if (strcmp(command, "pow")   == 0) data->operatorNum = POW;
 
     else 
     {
@@ -175,6 +176,7 @@ int processStrExpTreeCommandSymbol(Evaluator *eval, char *command, ExpTreeData *
     else if (strcmp(command, "/")   == 0) data->operatorNum = DIV;
     else if (strcmp(command, "ln")  == 0) data->operatorNum = LN;
     else if (strcmp(command, "log") == 0) data->operatorNum = LOGAR;
+    else if (strcmp(command, "^")   == 0) data->operatorNum = POW;
 
     else 
     {   

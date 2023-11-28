@@ -73,6 +73,7 @@ int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
         case DIV:    OPER("div");
         case LN:     OPER("ln");
         case LOGAR:  OPER("log");
+        case POW:    OPER("pow");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -146,6 +147,7 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
         case DIV:    OPER("/");
         case LN:     OPER("ln");
         case LOGAR:  OPER("log");
+        case POW:    OPER("^");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -242,6 +244,9 @@ int expTreeNodePriority(Node *node)
 
     case LN: case LOGAR:
         return PR_UNARY;
+
+    case POW:
+        return PR_POW;
     
     default:
         return PR_UNKNOWN;
@@ -253,10 +258,10 @@ bool isCommutative(Node *node)
     CHECK_POISON_PTR(node);
     if (!node) return true;
 
-    if (node->data.operatorNum == SUB ||
-        node->data.operatorNum == DIV) return false;
+    if (node->data.operatorNum == ADD ||
+        node->data.operatorNum == MUL) return true;
 
-    return true;
+    return false;
 }
 
 int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f)

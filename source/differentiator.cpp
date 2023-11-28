@@ -19,8 +19,11 @@
 #define NEW_NODE(type, value, left, right)                     \
     createNode(type, createNodeData(type, value), left, right)
 
+#define VAR_NODE(value)  NEW_NODE(EXP_TREE_NUMBER, value, NULL, NULL)
+
 #define cL     copy      (eval, node->left)
 #define cR     copy      (eval, node->right)
+#define cN     copy      (eval, node)
 
 #define dL     derivative(eval, node->left)
 #define dR     derivative(eval, node->right)
@@ -33,7 +36,9 @@
 
 #define _DIV(left, right) NEW_NODE(EXP_TREE_OPERATOR, DIV, left, right)
 
-#define _LN( left, right) NEW_NODE(EXP_TREE_OPERATOR, LN,  left, right)
+#define _LN(       right) NEW_NODE(EXP_TREE_OPERATOR, LN,  NULL, right)
+
+#define _POW(left, right) NEW_NODE(EXP_TREE_OPERATOR, POW, left, right)
 
 #define EV_L canBeEvaluated(node->left)
 #define EV_R canBeEvaluated(node->right)
@@ -59,9 +64,9 @@ Node *derivative(Evaluator *eval, Node *node)
 
     switch (node->type)
     {
-        case EXP_TREE_NUMBER:       return NEW_NODE(EXP_TREE_NUMBER, 0, NULL, NULL);
+        case EXP_TREE_NUMBER:       return VAR_NODE(0);
     
-        case EXP_TREE_VARIABLE:     return NEW_NODE(EXP_TREE_NUMBER, 1, NULL, NULL);
+        case EXP_TREE_VARIABLE:     return VAR_NODE(1);
     
         case EXP_TREE_OPERATOR:     return processDifOperator(eval, node);
 
@@ -94,6 +99,8 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 
         case LOGAR: return expTreeProcessLog(eval, node);
 
+        case POW:   return expTreeRrocessPow(eval, node);
+
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
                     return PtrPoison;
@@ -104,12 +111,44 @@ Node *expTreeProcessLog(Evaluator *eval, Node *node)
 {
     assert(eval);
     assert(node);
+    CHECK_POISON_PTR(node);
 
-    Node *divLns       = _DIV(_LN(NULL, cR), _LN(NULL, cL));
+    Node *divLns       = _DIV(_LN(cR), _LN(cL));
     Node *logDerivative = derivative(eval, divLns);
 
     subTreeDtor(divLns);
     return logDerivative;
+}
+
+Node *expTreeRrocessPow(Evaluator *eval, Node *node)
+{
+    assert(eval);
+    assert(node);
+    CHECK_POISON_PTR(node);
+
+    bool canBeEvalL = EV_L,
+         canBeEvalR = EV_R;
+
+    if (canBeEvalL && canBeEvalR)
+    {
+        return VAR_NODE(0);
+    }
+    else if (canBeEvalL)
+    {
+        return _MUL(cN, _LN(cL));
+    }
+    else if (canBeEvalR)
+    {
+        return _MUL(cR, _POW(cL, _SUB(cR, VAR_NODE(1))));
+    }
+    else
+    {
+        Node *powerOfE        = _MUL(cR, _LN(cL));
+        Node *powerDerivative = derivative(eval, powerOfE);
+
+        subTreeDtor(powerOfE);
+        return _MUL(cN, powerDerivative);
+    }
 }
 
 int expTreeSimplify(Evaluator *eval, Node *node)
@@ -217,6 +256,9 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
             COUNT(caseTimes1(eval, node, node->right, node->left));
             return EXIT_SUCCESS;
         }
+        case POW:
+            return EXIT_SUCCESS;
+            
         case LN: case LOGAR:
             return EXIT_SUCCESS;
 

@@ -19,6 +19,7 @@ enum ExpTreeOperators
     DIV   = 4,
     LN    = 5,
     LOGAR = 6,
+    POW   = 7,
 };
 
 union ExpTreeData
@@ -68,6 +69,7 @@ enum ExpTreeOperatorPriorities
     PR_UNKNOWN  = -1,
     PR_ADD_SUB  = 2,
     PR_MUL_DIV  = 4,
+    PR_POW      = 10,
     PR_UNARY    = 23,
     PR_NUMBER   = 100,
     PR_VARIABLE = 101,

@@ -265,33 +265,29 @@ double NodeCalculate(double leftTree, double rightTree,
 {
     switch (operatorType)
     {
-        case ADD:
-            return leftTree + rightTree;
+        case ADD:       return leftTree + rightTree;
 
-        case SUB:
-            return leftTree - rightTree;
+        case SUB:       return leftTree - rightTree;
 
-        case MUL:
-            return leftTree * rightTree;
+        case MUL:       return leftTree * rightTree;
 
-        case DIV:
-            ERROR(equalDouble(rightTree, 0), DIVISION_BY_ZERO);
-            return leftTree / rightTree;
-
-        case LN:
-            ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
-            return log(rightTree);
-
-        case LOGAR:
-            ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
-            ERROR(leftTree  < 0, LOG_BAD_BASE);
-            ERROR(equalDouble(leftTree, 1), LOG_BAD_BASE);
+        case DIV:       ERROR(equalDouble(rightTree, 0), DIVISION_BY_ZERO);
+                        return leftTree / rightTree;
             
-            return log(rightTree) / log(leftTree);
+        case LN:        ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+                        return log(rightTree);
+            
+        case LOGAR:     ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+                        ERROR(leftTree  < 0, LOG_BAD_BASE);
+                        ERROR(equalDouble(leftTree, 1), LOG_BAD_BASE);
 
-        default:
-            *error = UNKNOWN_OPERATOR;
-            return DataPoison;
+                        return log(rightTree) / log(leftTree);
+
+        case POW:       return pow(leftTree, rightTree);
+            
+
+        default:        *error = UNKNOWN_OPERATOR;
+                        return DataPoison;
     }
     return DataPoison;
 }
