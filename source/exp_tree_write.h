@@ -19,6 +19,10 @@ int expTreeNodePriority(Node *node);
 bool isCommutative     (Node *node);
 
 int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f);
-int printNodeUsefulBrackets        (Evaluator *eval, Node *node, Node *parent, FILE *f);
+int printNodeUsefulBrackets        (Evaluator *eval, Node *node, Node *parent, FILE *f, 
+                                    int (*printFunc)(Evaluator *, Node *, FILE *));
+
+int printTreeTex        (Evaluator *eval, Node *root, FILE *f);
+int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f);
 
 #endif //__EXP_TREE_IO_H__

@@ -7,7 +7,9 @@
 
 #include "differentiator.h"
 
-const char *fileName = "trees_to_read/exp_tree_pow.txt";
+const char *fileName = "trees_to_read/exp_tree_logar.txt";
+
+const char *fileTex  = "exp_tree.tex";
 
 int main()
 {
@@ -49,9 +51,14 @@ int main()
     printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
     putchar('\n');
 
+    FILE *f = fopen(fileTex, "w");
+    printTreeTex(&evaluator, evaluator.tree.root, f);
+    putc('\n', f);
+    printTreeTex(&deriv, deriv.tree.root, f);
 
     evaluatorDtor(&evaluator);
     evaluatorDtor(&deriv);
+    fclose(f);
 }
 
 /*

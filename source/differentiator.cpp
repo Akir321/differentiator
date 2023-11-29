@@ -97,9 +97,9 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 
         case LN:    return _DIV(dR, cR);
 
-        case LOGAR: return expTreeProcessLog(eval, node);
+        case LOGAR: return difProcessLog(eval, node);
 
-        case POW:   return expTreeRrocessPow(eval, node);
+        case POW:   return difRrocessPow(eval, node);
 
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
@@ -107,7 +107,7 @@ Node *processDifOperator(Evaluator *eval, Node *node)
     }
 }
 
-Node *expTreeProcessLog(Evaluator *eval, Node *node)
+Node *difProcessLog(Evaluator *eval, Node *node)
 {
     assert(eval);
     assert(node);
@@ -120,7 +120,7 @@ Node *expTreeProcessLog(Evaluator *eval, Node *node)
     return logDerivative;
 }
 
-Node *expTreeRrocessPow(Evaluator *eval, Node *node)
+Node *difRrocessPow(Evaluator *eval, Node *node)
 {
     assert(eval);
     assert(node);
@@ -129,18 +129,12 @@ Node *expTreeRrocessPow(Evaluator *eval, Node *node)
     bool canBeEvalL = EV_L,
          canBeEvalR = EV_R;
 
-    if (canBeEvalL && canBeEvalR)
-    {
-        return VAR_NODE(0);
-    }
-    else if (canBeEvalL)
-    {
-        return _MUL(cN, _LN(cL));
-    }
-    else if (canBeEvalR)
-    {
-        return _MUL(cR, _POW(cL, _SUB(cR, VAR_NODE(1))));
-    }
+    if      (canBeEvalL && canBeEvalR)    return VAR_NODE(0);
+
+    else if (canBeEvalL)                  return _MUL(cN, _LN(cL));
+    
+    else if (canBeEvalR)                  return _MUL(cR, _POW(cL, _SUB(cR, VAR_NODE(1))));
+    
     else
     {
         Node *powerOfE        = _MUL(cR, _LN(cL));
@@ -258,7 +252,7 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
         }
         case POW:
             return EXIT_SUCCESS;
-            
+
         case LN: case LOGAR:
             return EXIT_SUCCESS;
 

@@ -253,7 +253,7 @@ double expTreeEvaluate(Evaluator *eval, Node *root, ExpTreeErrors *error)
     return nodeValue;
 }
 
-#define ERROR(expression, type) \
+#define CHECK_ERROR(expression, type) \
     if (expression)             \
         {                       \
             *error = type;      \
@@ -271,15 +271,15 @@ double NodeCalculate(double leftTree, double rightTree,
 
         case MUL:       return leftTree * rightTree;
 
-        case DIV:       ERROR(equalDouble(rightTree, 0), DIVISION_BY_ZERO);
+        case DIV:       CHECK_ERROR(equalDouble(rightTree, 0), DIVISION_BY_ZERO);
                         return leftTree / rightTree;
             
-        case LN:        ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+        case LN:        CHECK_ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
                         return log(rightTree);
             
-        case LOGAR:     ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
-                        ERROR(leftTree  < 0, LOG_BAD_BASE);
-                        ERROR(equalDouble(leftTree, 1), LOG_BAD_BASE);
+        case LOGAR:     CHECK_ERROR(rightTree < 0, LOG_NEGATIVE_ARG);
+                        CHECK_ERROR(leftTree  < 0, LOG_BAD_BASE);
+                        CHECK_ERROR(equalDouble(leftTree, 1), LOG_BAD_BASE);
 
                         return log(rightTree) / log(leftTree);
 

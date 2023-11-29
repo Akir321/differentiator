@@ -264,6 +264,9 @@ bool isCommutative(Node *node)
     return false;
 }
 
+#define PRINT_NODE(side) printNodeUsefulBrackets(eval, root->side,  root, f,     \
+                                                 printTreeInfixNoUselessBrackets)
+
 int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f)
 {
     CHECK_POISON_PTR(root);
@@ -279,14 +282,16 @@ int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f)
         return EXIT_SUCCESS;
     }
 
-    printNodeUsefulBrackets(eval, root->left, root, f);       putc(' ', f);
-    printNodeSymbol(eval, root, f);                           putc(' ', f);
-    printNodeUsefulBrackets(eval, root->right, root, f);    //putc(' ', f);
+    PRINT_NODE(left);                      putc(' ', f);
+    printNodeSymbol(eval, root, f);        putc(' ', f);
+    PRINT_NODE(right);
 
     return EXIT_SUCCESS;
 }
+#undef PRINT_NODE
 
-int printNodeUsefulBrackets(Evaluator *eval, Node *node, Node *parent, FILE *f)
+int printNodeUsefulBrackets(Evaluator *eval, Node *node, Node *parent, FILE *f, 
+                            int (*printFunc)(Evaluator *, Node *, FILE *))
 {
     assert(eval);
     CHECK_POISON_PTR(node);
@@ -299,13 +304,89 @@ int printNodeUsefulBrackets(Evaluator *eval, Node *node, Node *parent, FILE *f)
         (parentPriority == nodePriority && !isCommutative(parent)))
     {
         putc('(', f);
-        printTreeInfixNoUselessBrackets(eval, node, f);
+        printFunc(eval, node, f);
         putc(')', f);
     }
-    else    printTreeInfixNoUselessBrackets(eval, node, f);
+    else    printFunc(eval, node, f);
 
     return EXIT_SUCCESS;
 }
+
+int printTreeTex(Evaluator *eval, Node *root, FILE *f)
+{
+    CHECK_POISON_PTR(root);
+    assert(eval);
+    assert(f);
+
+    if (!root) return EXIT_SUCCESS;
+
+    if (root->type == EXP_TREE_NUMBER ||
+        root->type == EXP_TREE_VARIABLE)
+    {
+        printNodeSymbol(eval, root, f);
+        return EXIT_SUCCESS;
+    }
+
+    printSubTreeTexStyle(eval, root, f);  
+
+    return EXIT_SUCCESS;
+}
+
+#define LEFT      printTreeTex(eval, root->left,  f)
+#define RIGHT     printTreeTex(eval, root->right, f)
+#define PR(...)   fprintf(f, __VA_ARGS__)
+
+#define PRINT_NODE(side) printNodeUsefulBrackets(eval, root->side,  root, f, \
+                                                 printTreeTex)
+
+int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f)
+{
+    CHECK_POISON_PTR(root);
+    assert(root);
+    assert(eval);
+    assert(f);
+
+    ExpTreeOperators oper = root->data.operatorNum;
+
+    switch (oper)
+    {
+        case DIV:       PR("\\frac"); 
+                        PR("{"); LEFT;  PR("}"); 
+                        PR("{"); RIGHT; PR("}");
+                        return EXIT_SUCCESS;
+
+        case LOGAR:     PR("\\log");
+                        PR("_{"); LEFT;  PR("}");
+                        PR("(");  RIGHT; PR(")");
+                        return EXIT_SUCCESS;      
+
+        case MUL:       PRINT_NODE(left);                   putc(' ', f);
+                        PR("\\cdot");                       putc(' ', f);
+                        PRINT_NODE(right);
+                        return EXIT_SUCCESS;
+
+        case POW:       PRINT_NODE(left);
+                        PR(" ^ ");
+                        PR("{"); RIGHT; PR("}");
+                        return EXIT_SUCCESS;
+
+        case ADD: case SUB:
+        case LN: 
+                        PRINT_NODE(left);                   putc(' ', f);
+                        if (oper == LN)                     PR("\\");
+                        printNodeSymbol(eval, root, f);     putc(' ', f);
+                        PRINT_NODE(right);
+                        return EXIT_SUCCESS;   
+
+        default:        LOG("ERROR: unknown operator: %d\n", root->data.operatorNum);
+                        return EXIT_FAILURE;
+    }
+}
+
+#undef LEFT
+#undef RIGHT
+#undef PR
+#undef PRINT_NODE
 
 // a broken function which doesn't work properly
 // i'd like to understand why it wasn't working
