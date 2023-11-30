@@ -22,7 +22,7 @@ int runDifferentiator(Evaluator *function)
 {
     PRINT_TO_TEX(Introduction);
 
-    PRINT_TO_TEX("Давайте разберем такой несложный пример. Рассмотрим функцию $f(x) = $ ");
+    PRINT_TO_TEX("Давайте разберем такой несложный пример. Рассмотрим функцию \n\n$f(x) = $ ");
     printTreeToTexFile(function, function->tree.root, TexFile, NULL);
     PRINT_TO_TEX(" и найдем ее производную.\n\n");
 

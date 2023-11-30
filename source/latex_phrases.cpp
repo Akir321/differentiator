@@ -85,7 +85,8 @@ const char *getPrefix(Node *node)
     case DIV:           PERSONAL(Div);
     case POW:           PERSONAL(Pow);
     
-    case MUL: case LN:        
+    case MUL: case LN:
+    case SIN: case COS:        
     case LOGAR:         personal = NULL;    break;
 
     default:            personal = NULL;    break;

@@ -48,6 +48,10 @@ extern const char *getPrefix(Node *node);
 
 #define _POW(left, right) NEW_NODE(EXP_TREE_OPERATOR, POW, left, right)
 
+#define _SIN(      right) NEW_NODE(EXP_TREE_OPERATOR, SIN, NULL, right)
+
+#define _COS(      right) NEW_NODE(EXP_TREE_OPERATOR, COS, NULL, right)
+
 #define EV_L canBeEvaluated(node->left)
 #define EV_R canBeEvaluated(node->right)
 
@@ -135,19 +139,23 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 
     switch (node->data.operatorNum)
     {
-        case ADD:   DERIVATIVE(_ADD(dL, dR);)
+        case ADD:   DERIVATIVE(_ADD(dL, dR))
 
-        case SUB:   DERIVATIVE(_SUB(dL, dR);)
+        case SUB:   DERIVATIVE(_SUB(dL, dR))
         
-        case MUL:   DERIVATIVE(_ADD(_MUL(dL, cR), _MUL(cL, dR));)
+        case MUL:   DERIVATIVE(_ADD(_MUL(dL, cR), _MUL(cL, dR)))
 
-        case DIV:   DERIVATIVE(_DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR));)
+        case DIV:   DERIVATIVE(_DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR)))
 
-        case LN:    DERIVATIVE(_DIV(dR, cR);)
+        case LN:    DERIVATIVE(_DIV(dR, cR))
 
-        case LOGAR: DERIVATIVE(difProcessLog(eval, node);)
+        case LOGAR: DERIVATIVE(difProcessLog(eval, node))
 
-        case POW:   DERIVATIVE(difRrocessPow(eval, node);)
+        case POW:   DERIVATIVE(difRrocessPow(eval, node))
+
+        case SIN:   DERIVATIVE(_MUL(dR, _COS(cR)))
+
+        case COS:   DERIVATIVE(_MUL(dR, _MUL(VAR_NODE(-1), _SIN(cR))))
 
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
@@ -299,7 +307,8 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
         case POW:
             return EXIT_SUCCESS;
 
-        case LN: case LOGAR:
+        case LN:  case LOGAR:
+        case SIN: case COS:
             return EXIT_SUCCESS;
 
         default:

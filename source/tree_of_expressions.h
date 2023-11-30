@@ -20,6 +20,8 @@ enum ExpTreeOperators
     LN    = 5,
     LOGAR = 6,
     POW   = 7,
+    SIN   = 8,
+    COS   = 9,
 };
 
 union ExpTreeData
@@ -66,14 +68,15 @@ struct Evaluator
 
 enum ExpTreeOperatorPriorities
 {
-    PR_UNKNOWN  = -1,
-    PR_ADD_SUB  = 2,
-    PR_MUL_DIV  = 4,
-    PR_UNARY    = 23,
-    PR_POW      = 50,
-    PR_NUMBER   = 100,
-    PR_VARIABLE = 101,
-    PR_NULL     = 102,
+    PR_UNKNOWN    = -1,
+    PR_NEG_NUMBER = 1,
+    PR_ADD_SUB    = 2,
+    PR_MUL_DIV    = 4,
+    PR_UNARY      = 23,
+    PR_POW        = 50,
+    PR_NUMBER     = 100,
+    PR_VARIABLE   = 101,
+    PR_NULL       = 102,
 };
 
 enum ExpTreeErrors

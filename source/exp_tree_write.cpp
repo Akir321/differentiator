@@ -74,6 +74,8 @@ int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
         case LN:     OPER("ln");
         case LOGAR:  OPER("log");
         case POW:    OPER("pow");
+        case SIN:    OPER("sin");
+        case COS:    OPER("cos");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -148,6 +150,8 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
         case LN:     OPER("ln");
         case LOGAR:  OPER("log");
         case POW:    OPER("^");
+        case SIN:    OPER("sin");
+        case COS:    OPER("cos");
 
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
@@ -231,7 +235,12 @@ int expTreeNodePriority(Node *node)
     CHECK_POISON_PTR(node);
     if (!node) return PR_NULL;
 
-    if (node->type == EXP_TREE_NUMBER) return PR_NUMBER;
+    
+    if (node->type == EXP_TREE_NUMBER)  
+    {
+        if (node->data.number < 0) return PR_NEG_NUMBER;
+        else                       return PR_NUMBER;
+    }
     if (node->type == EXP_TREE_VARIABLE) return PR_NUMBER;
 
     switch (node->data.operatorNum)
@@ -242,7 +251,8 @@ int expTreeNodePriority(Node *node)
     case MUL: case DIV:
         return PR_MUL_DIV;
 
-    case LN: case LOGAR:
+    case LN:  case LOGAR:
+    case SIN: case COS:
         return PR_UNARY;
 
     case POW:
@@ -371,7 +381,8 @@ int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f)
                         return EXIT_SUCCESS;
 
         case ADD: case SUB:
-        case LN: 
+        case LN:  case SIN:
+        case COS:
                         PRINT_NODE(left);                   putc(' ', f);
                         if (oper == LN)                     PR("\\");
                         printNodeSymbol(eval, root, f);     putc(' ', f);

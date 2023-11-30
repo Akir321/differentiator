@@ -136,6 +136,8 @@ int readNodeData(Evaluator *eval, ExpTreeNodeType *type, ExpTreeData *data, FILE
     return EXIT_SUCCESS;
 }
 
+#define OPER(str, number) else if (strcmp(command, str) == 0) data->operatorNum = number
+
 int processStrExpTreeCommand(Evaluator *eval, char *command, ExpTreeData *data, ExpTreeNodeType *type)
 {
     assert(eval);
@@ -144,13 +146,15 @@ int processStrExpTreeCommand(Evaluator *eval, char *command, ExpTreeData *data, 
 
     if      (strcmp(command, "nil") == 0) return EXIT_SUCCESS;
     
-    else if (strcmp(command, "add") == 0) data->operatorNum = ADD;
-    else if (strcmp(command, "sub") == 0) data->operatorNum = SUB;
-    else if (strcmp(command, "mul") == 0) data->operatorNum = MUL;
-    else if (strcmp(command, "div") == 0) data->operatorNum = DIV;
-    else if (strcmp(command, "ln")  == 0) data->operatorNum = LN;
-    else if (strcmp(command, "log") == 0) data->operatorNum = LOGAR;
-    else if (strcmp(command, "pow")   == 0) data->operatorNum = POW;
+    OPER("add", ADD);
+    OPER("sub", SUB);
+    OPER("mul", MUL);
+    OPER("div", DIV);
+    OPER("ln",  LN);
+    OPER("log", LOGAR);
+    OPER("pow", POW);
+    OPER("sin", SIN);
+    OPER("cos", COS);
 
     else 
     {
@@ -170,13 +174,15 @@ int processStrExpTreeCommandSymbol(Evaluator *eval, char *command, ExpTreeData *
 
     if      (strcmp(command, "_") == 0) return EXIT_SUCCESS;    // nil
     
-    else if (strcmp(command, "+")   == 0) data->operatorNum = ADD;
-    else if (strcmp(command, "-")   == 0) data->operatorNum = SUB;
-    else if (strcmp(command, "*")   == 0) data->operatorNum = MUL;
-    else if (strcmp(command, "/")   == 0) data->operatorNum = DIV;
-    else if (strcmp(command, "ln")  == 0) data->operatorNum = LN;
-    else if (strcmp(command, "log") == 0) data->operatorNum = LOGAR;
-    else if (strcmp(command, "^")   == 0) data->operatorNum = POW;
+    OPER("+", ADD);
+    OPER("-", SUB);
+    OPER("*", MUL);
+    OPER("-", DIV);
+    OPER("ln",  LN);
+    OPER("log", LOGAR);
+    OPER("^", POW);
+    OPER("sin", SIN);
+    OPER("cos", COS);
 
     else 
     {   

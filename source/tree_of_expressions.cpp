@@ -284,7 +284,10 @@ double NodeCalculate(double leftTree, double rightTree,
                         return log(rightTree) / log(leftTree);
 
         case POW:       return pow(leftTree, rightTree);
-            
+
+        case SIN:       return sin(rightTree);
+
+        case COS:       return cos(rightTree);
 
         default:        *error = UNKNOWN_OPERATOR;
                         return DataPoison;
