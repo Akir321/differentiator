@@ -77,6 +77,9 @@ Node *copy(Evaluator *eval, Node *node)
     return createNode(node->type, node->data, cL, cR);
 }
 
+#define VAR_NODE_NAME(node) eval->names.table[node->data.variableNum].name
+#define IS_X(node)          strcmp("x", VAR_NODE_NAME(node)) == 0
+
 Node *derivative(Evaluator *eval, Node *node)
 {
     assert(eval);
@@ -87,7 +90,8 @@ Node *derivative(Evaluator *eval, Node *node)
     {
         case EXP_TREE_NUMBER:       return VAR_NODE(0);
     
-        case EXP_TREE_VARIABLE:     return VAR_NODE(1);
+        case EXP_TREE_VARIABLE:     if (IS_X(node)) return VAR_NODE(1);
+                                    else            return VAR_NODE(0);
     
         case EXP_TREE_OPERATOR:     return processDifOperator(eval, node);
 
@@ -99,6 +103,9 @@ Node *derivative(Evaluator *eval, Node *node)
         
     }
 }
+
+#undef VAR_NODE_NAME
+#undef IS_X
 
 #ifdef __PRINT_TO_TEX__
 
@@ -287,8 +294,6 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
         case DIV:
         {
             COUNT(caseTimes0(eval, node, node->left));
-            COUNT(caseTimes1(eval, node, node->left,  node->right));
-            COUNT(caseTimes1(eval, node, node->right, node->left));
             return EXIT_SUCCESS;
         }
         case POW:

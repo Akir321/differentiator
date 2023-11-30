@@ -18,7 +18,8 @@ INCLUDES =  $(SRC_DIR)tree_of_expressions.h \
 			$(SRC_DIR)html_logfile.h        \
 			$(SRC_DIR)exp_tree_write.h      \
 			$(SRC_DIR)exp_tree_read.h       \
-			$(SRC_DIR)differentiator.h
+			$(SRC_DIR)differentiator.h      \
+			$(SRC_DIR)prog_differentiator.h
 
 OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o \
 			$(OBJ_DIR)tree_graphic_dump.o   \
@@ -27,6 +28,7 @@ OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o \
 			$(OBJ_DIR)exp_tree_read.o       \
 			$(OBJ_DIR)differentiator.o      \
 			$(OBJ_DIR)latex_phrases.o       \
+			$(OBJ_DIR)prog_differentiator.o 
 
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
@@ -66,6 +68,11 @@ $(OBJ_DIR)differentiator.o: $(SRC_DIR)differentiator.cpp             $(INCLUDES)
 
 $(OBJ_DIR)latex_phrases.o: $(SRC_DIR)latex_phrases.cpp               $(INCLUDES)
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
+
+$(OBJ_DIR)prog_differentiator.o : $(SRC_DIR)prog_differentiator.cpp  $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
+
+
 
 
 
