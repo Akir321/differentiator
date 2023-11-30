@@ -20,23 +20,28 @@ INCLUDES =  $(SRC_DIR)tree_of_expressions.h \
 			$(SRC_DIR)exp_tree_read.h       \
 			$(SRC_DIR)differentiator.h
 
-OBJECTS  =  $(OBJ_DIR)test_exp_tree.o       \
-		    $(OBJ_DIR)tree_of_expressions.o \
+OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o \
 			$(OBJ_DIR)tree_graphic_dump.o   \
 			$(OBJ_DIR)html_logfile.o        \
 			$(OBJ_DIR)exp_tree_write.o      \
 			$(OBJ_DIR)exp_tree_read.o       \
-			$(OBJ_DIR)differentiator.o
+			$(OBJ_DIR)differentiator.o      \
+			$(OBJ_DIR)latex_phrases.o       \
 
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
          
 
-all: test_exp_tree.exe
+all: differentiator.exe
 
-test_exp_tree.exe: $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $@ $(CXX_FLAGS)
+differentiator.exe: $(OBJ_DIR)main_differentiator.o $(OBJECTS)
+	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)
 
+test_exp_tree.exe:  $(OBJ_DIR)test_exp_tree.o       $(OBJECTS)
+	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)
+
+$(OBJ_DIR)main_differentiator.o: $(SRC_DIR)main_differentiator.cpp   $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
 $(OBJ_DIR)test_exp_tree.o:       $(SRC_DIR)test_exp_tree.cpp         $(INCLUDES) 
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
@@ -57,6 +62,9 @@ $(OBJ_DIR)exp_tree_read.o: $(SRC_DIR)exp_tree_read.cpp               $(INCLUDES)
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
 $(OBJ_DIR)differentiator.o: $(SRC_DIR)differentiator.cpp             $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
+
+$(OBJ_DIR)latex_phrases.o: $(SRC_DIR)latex_phrases.cpp               $(INCLUDES)
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
 

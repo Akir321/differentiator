@@ -388,6 +388,22 @@ int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f)
 #undef PR
 #undef PRINT_NODE
 
+int printTreeToTexFile(Evaluator *eval, Node *root, FILE *f, const char *prefix)
+{
+    CHECK_POISON_PTR(root);
+    assert(eval);
+    assert(root);
+    assert(f);
+
+    if (prefix) fprintf(f, "%s\n\n", prefix);
+
+    fprintf(f, "$");
+    printTreeTex(eval, root, f);
+    fprintf(f, "$");
+
+    return  EXIT_SUCCESS;
+}
+
 // a broken function which doesn't work properly
 // i'd like to understand why it wasn't working
 /*

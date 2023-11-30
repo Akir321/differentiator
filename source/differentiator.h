@@ -3,6 +3,8 @@
 
 #include "tree_of_expressions.h"
 
+int differentiate       (Evaluator *from, Evaluator *to);
+
 Node *copy              (Evaluator *eval, Node *node);
 
 Node *derivative        (Evaluator *eval, Node *node);
@@ -22,5 +24,8 @@ int tryNodeSimplify(Evaluator *eval, Node *node);
 int caseTimes0(Evaluator *eval, Node *node, Node *zero);
 int casePlus0 (Evaluator *eval, Node *node, Node *zero, Node *savedNode);
 int caseTimes1(Evaluator *eval, Node *node, Node *one,  Node *savedNode);
+
+int  processArgv(int argC, const char *argV[], const char **fileInName, char **fileOutName);
+void pointToZero(char *str);
 
 #endif //__DIFFERENTIATOR_H__

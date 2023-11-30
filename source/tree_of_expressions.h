@@ -78,7 +78,7 @@ enum ExpTreeOperatorPriorities
 
 enum ExpTreeErrors
 {
-    NO_ERROR          = 0,
+    TREE_NO_ERROR     = 0,
     DIVISION_BY_ZERO  = -1,
     UNKNOWN_OPERATOR  = -2,
     NODE_TYPE_NOTHING = -3,

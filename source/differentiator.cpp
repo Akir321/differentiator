@@ -9,6 +9,14 @@
 #include "html_logfile.h"
 #include "differentiator.h"
 
+#define __PRINT_TO_TEX__
+
+#ifdef  __PRINT_TO_TEX__
+extern FILE *TexFile;
+#endif
+
+extern const char *getPrefix(Node *node);
+
 #define CHECK_POISON_PTR(ptr) \
     if (ptr == PtrPoison)     \
     {                         \
@@ -47,6 +55,19 @@
 #define VALUE_1(node) (canBeEvaluated(node) && equalDouble(expTreeEvaluate(eval, node, &error), 1))
 
 
+int differentiate(Evaluator *from, Evaluator *to)
+{
+    assert(to);
+    assert(from);
+
+    evaluatorCtor(to);
+
+    treeCtor(&to->tree, derivative(from, from->tree.root));
+    nameTableCopy(&from->names, &to->names);
+
+    return EXIT_SUCCESS;
+}
+
 Node *copy(Evaluator *eval, Node *node)
 {
     assert(eval);
@@ -79,6 +100,26 @@ Node *derivative(Evaluator *eval, Node *node)
     }
 }
 
+#ifdef __PRINT_TO_TEX__
+
+#define DERIVATIVE(expression)                          \
+    {                                                   \
+        Node *deriv = expression;                       \
+                                                        \
+        printTreeToTexFile(eval, node,  TexFile, getPrefix(node)); \
+        fprintf(TexFile, " $\\Rightarrow$ ");           \
+        printTreeToTexFile(eval, deriv, TexFile, NULL); \
+        fprintf(TexFile, "\n\n");                       \
+                                                        \
+        return deriv;                                   \
+    }
+
+#else
+
+#define DERIVATIVE(expression) return expression;
+
+#endif
+
 Node *processDifOperator(Evaluator *eval, Node *node)
 {
     assert(eval);
@@ -87,19 +128,19 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 
     switch (node->data.operatorNum)
     {
-        case ADD:   return _ADD(dL, dR);
+        case ADD:   DERIVATIVE(_ADD(dL, dR);)
 
-        case SUB:   return _SUB(dL, dR);
+        case SUB:   DERIVATIVE(_SUB(dL, dR);)
         
-        case MUL:   return _ADD(_MUL(dL, cR), _MUL(cL, dR));
+        case MUL:   DERIVATIVE(_ADD(_MUL(dL, cR), _MUL(cL, dR));)
 
-        case DIV:   return _DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR));
+        case DIV:   DERIVATIVE(_DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR));)
 
-        case LN:    return _DIV(dR, cR);
+        case LN:    DERIVATIVE(_DIV(dR, cR);)
 
-        case LOGAR: return difProcessLog(eval, node);
+        case LOGAR: DERIVATIVE(difProcessLog(eval, node);)
 
-        case POW:   return difRrocessPow(eval, node);
+        case POW:   DERIVATIVE(difRrocessPow(eval, node);)
 
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
@@ -181,7 +222,7 @@ int expTreeSimplifyConsts(Evaluator *eval, Node *node)
 
     if (EV_L && EV_R)
     {
-        ExpTreeErrors error = NO_ERROR;
+        ExpTreeErrors error = TREE_NO_ERROR;
         double left  = expTreeEvaluate(eval, node->left,  &error);
         double right = expTreeEvaluate(eval, node->right, &error);
         if (error) return error;
@@ -269,7 +310,7 @@ int casePlus0(Evaluator *eval, Node *node, Node *zero, Node *savedNode)
     CHECK_POISON_PTR(zero);
     CHECK_POISON_PTR(savedNode);
 
-    ExpTreeErrors error = NO_ERROR;
+    ExpTreeErrors error = TREE_NO_ERROR;
 
     if (VALUE_0(zero))                           
     {   
@@ -286,7 +327,7 @@ int casePlus0(Evaluator *eval, Node *node, Node *zero, Node *savedNode)
 
 int caseTimes0(Evaluator *eval, Node *node, Node *zero)
 {   
-    ExpTreeErrors error = NO_ERROR;
+    ExpTreeErrors error = TREE_NO_ERROR;
 
     if (VALUE_0(zero)) 
     {   if (error) return error;                                             
@@ -309,7 +350,7 @@ int caseTimes1(Evaluator *eval, Node *node, Node *one, Node *savedNode)
     CHECK_POISON_PTR(one);
     CHECK_POISON_PTR(savedNode);
 
-    ExpTreeErrors error = NO_ERROR;
+    ExpTreeErrors error = TREE_NO_ERROR;
 
     if (VALUE_1(one))                           
     {   
@@ -325,3 +366,32 @@ int caseTimes1(Evaluator *eval, Node *node, Node *one, Node *savedNode)
 }
 
 #undef CHANGED
+
+int processArgv(int argC, const char *argV[], const char **fileInName, char **fileOutName)
+{
+    assert(argV);
+    assert(fileInName);
+    assert(fileOutName);
+
+    if (argC == 1) return EXIT_FAILURE;
+
+    *fileInName  = argV[1];
+
+    char *temp = strdup(*fileInName);
+    pointToZero(temp);
+
+    __mingw_asprintf(fileOutName, "%s.tex", temp);
+    free(temp);
+
+    return EXIT_SUCCESS;
+}
+
+void pointToZero(char *str)
+{
+    assert(str);
+
+    size_t i = 0;
+    while(str[i] != '.' && str[i] != '\0') { i++; }
+
+    str[i] = '\0';
+}

@@ -22,6 +22,7 @@ int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f);
 int printNodeUsefulBrackets        (Evaluator *eval, Node *node, Node *parent, FILE *f, 
                                     int (*printFunc)(Evaluator *, Node *, FILE *));
 
+int printTreeToTexFile  (Evaluator *eval, Node *root, FILE *f, const char *prefix);
 int printTreeTex        (Evaluator *eval, Node *root, FILE *f);
 int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f);
 
