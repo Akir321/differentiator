@@ -245,21 +245,21 @@ int expTreeNodePriority(Node *node)
 
     switch (node->data.operatorNum)
     {
-    case ADD: case SUB:
-        return PR_ADD_SUB;
-    
-    case MUL: case DIV:
-        return PR_MUL_DIV;
+        case ADD: case SUB:
+            return PR_ADD_SUB;
+        
+        case MUL: case DIV:
+            return PR_MUL_DIV;
 
-    case LN:  case LOGAR:
-    case SIN: case COS:
-        return PR_UNARY;
+        case LN:  case LOGAR:
+        case SIN: case COS:
+            return PR_UNARY;
 
-    case POW:
-        return PR_POW;
-    
-    default:
-        return PR_UNKNOWN;
+        case POW:
+            return PR_POW;
+        
+        default:
+            return PR_UNKNOWN;
     }
 }
 

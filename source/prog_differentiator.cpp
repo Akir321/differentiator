@@ -6,6 +6,7 @@
 #include "exp_tree_write.h"
 #include "prog_differentiator.h"
 #include "html_logfile.h"
+#include "tree_graphic_dump.h"
 
 extern const char *Introduction;
 extern const char *Simplification;
@@ -31,6 +32,7 @@ int runDifferentiator(Evaluator *function)
 
     Evaluator deriv1 = {};
     firstDerivative(function, &deriv1);
+    treeGraphicDump(&deriv1, deriv1.tree.root);
 
     Evaluator deriv2 = {};
     secondDerivative(&deriv1, &deriv2);
@@ -49,6 +51,7 @@ int runDifferentiator(Evaluator *function)
 int firstDerivative(Evaluator *function, Evaluator *deriv1)
 {
     differentiate(function, deriv1);
+    treeGraphicDump(deriv1, deriv1->tree.root);
 
     expTreeSimplify(deriv1, deriv1->tree.root);
     PRINT_TO_TEX(Simplification);

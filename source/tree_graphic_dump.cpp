@@ -26,7 +26,7 @@ timeHolder getTime(void);
 
 static timeHolder OpenTime = getTime();
 
-int treeGraphicDump(Evaluator *eval)
+int treeGraphicDump(Evaluator *eval, Node *node)
 {
     assert(eval);
 
@@ -37,7 +37,7 @@ int treeGraphicDump(Evaluator *eval)
 
     FILE *f = fopen(fileName, "w");
 
-    writeTreeToDotFile(eval, f);
+    writeTreeToDotFile(eval, node, f);
     fclose(f);
 
     char *command = NULL;
@@ -106,7 +106,7 @@ timeHolder getTime()
 
 #define dotWrite(...) fprintf(f, __VA_ARGS__)
 
-int writeTreeToDotFile(Evaluator *eval, FILE *f)
+int writeTreeToDotFile(Evaluator *eval, Node *node, FILE *f)
 {
     assert(eval);
     assert(f);
@@ -118,9 +118,9 @@ int writeTreeToDotFile(Evaluator *eval, FILE *f)
     dotWrite("nodeL [label = \"L\", style = filled, fillcolor = \"cornFlowerBlue\"];\n");
     dotWrite("nodeR [label = \"R\", style = filled, fillcolor = \"salmon\"];\n\n");
 
-    dotWriteNodes(eval, eval->tree.root, f, 0);
+    dotWriteNodes(eval, node, f, 0);
     dotWrite("\n");
-    dotWriteEdges(eval->tree.root, f);
+    dotWriteEdges(node, f);
     dotWrite("}");
 
     return EXIT_SUCCESS;

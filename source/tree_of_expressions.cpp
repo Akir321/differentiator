@@ -27,20 +27,20 @@ ExpTreeData createNodeData(ExpTreeNodeType type, double value)
 
     switch (type)
     {
-    case EXP_TREE_NUMBER:       data.number = value;
-                                return data;
+        case EXP_TREE_NUMBER:       data.number = value;
+                                    return data;
 
-    case EXP_TREE_OPERATOR:     data.operatorNum = (ExpTreeOperators) value;
-                                return data;
-                
-    case EXP_TREE_VARIABLE:     data.variableNum = (int) value;
-                                return data;
+        case EXP_TREE_OPERATOR:     data.operatorNum = (ExpTreeOperators) value;
+                                    return data;
+                    
+        case EXP_TREE_VARIABLE:     data.variableNum = (int) value;
+                                    return data;
 
-    case EXP_TREE_NOTHING:      data.number = DataPoison;
-                                return data;
+        case EXP_TREE_NOTHING:      data.number = DataPoison;
+                                    return data;
 
-    default:                    data.number = DataPoison;
-                                return data;
+        default:                    data.number = DataPoison;
+                                    return data;
     }
 }
 

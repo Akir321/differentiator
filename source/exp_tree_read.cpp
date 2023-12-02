@@ -7,6 +7,7 @@
 #include "tree_of_expressions.h"
 #include "html_logfile.h"
 #include "exp_tree_read.h"
+#include "tree_graphic_dump.h"
 
 #define CHECK_POISON_PTR(ptr) \
     if (ptr == PtrPoison)     \
@@ -238,6 +239,7 @@ Node *readNodeInfix(Evaluator *eval, FILE *f)
         Node *right = readNodeInfix(eval, f);
 
         Node *node  = createNode(type, data, left, right);
+        treeGraphicDump(eval, node);
 
         c = getc(f);    LOG("char = %c(%d)\n", c, c); 
         if (c != ')') return (Node *) PtrPoison;

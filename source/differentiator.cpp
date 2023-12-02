@@ -189,7 +189,7 @@ Node *difRrocessPow(Evaluator *eval, Node *node)
 
     else if (canBeEvalL)                  return _MUL(cN, _LN(cL));
     
-    else if (canBeEvalR)                  return _MUL(cR, _POW(cL, _SUB(cR, VAR_NODE(1))));
+    else if (canBeEvalR)                  return _MUL(cR, _MUL(dL, _POW(cL, _SUB(cR, VAR_NODE(1)))));
     
     else
     {
@@ -251,7 +251,7 @@ int expTreeSimplifyConsts(Evaluator *eval, Node *node)
         node->left  = NULL;
         node->right = NULL;
 
-        return CHANGED;
+        return 1;
     }
     return EXIT_SUCCESS;
 }
@@ -276,8 +276,6 @@ int expTreeSimplifyNeutralElem(Evaluator *eval, Node *node)
     return count;
 }
 
-#define COUNT(func) if (func > 0) return CHANGED
-
 int tryNodeSimplify(Evaluator *eval, Node *node)
 {
     assert(eval);
@@ -287,21 +285,23 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
     {
         case ADD: case SUB:
         {
-            COUNT(casePlus0(eval, node, node->left,  node->right));
-            COUNT(casePlus0(eval, node, node->right, node->left));
+            if (casePlus0(eval, node, node->left,  node->right))  return CHANGED;
+            if (casePlus0(eval, node, node->right, node->left))   return CHANGED;
+
             return EXIT_SUCCESS;
         }
         case MUL:
         {
-            COUNT(caseTimes0(eval, node, node->left));
-            COUNT(caseTimes0(eval, node, node->right));
-            COUNT(caseTimes1(eval, node, node->left,  node->right));
-            COUNT(caseTimes1(eval, node, node->right, node->left));
+            if (caseTimes0(eval, node, node->left))               return CHANGED;
+            if (caseTimes0(eval, node, node->right))              return CHANGED;
+            if (caseTimes1(eval, node, node->left,  node->right)) return CHANGED;
+            if (caseTimes1(eval, node, node->right, node->left))  return CHANGED;
+
             return EXIT_SUCCESS;
         }
         case DIV:
         {
-            COUNT(caseTimes0(eval, node, node->left));
+            if (caseTimes0(eval, node, node->left)) return CHANGED;
             return EXIT_SUCCESS;
         }
         case POW:
@@ -316,8 +316,6 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
             return UNKNOWN_OPERATOR;
     }
 }
-
-#undef COUNT
 
 int casePlus0(Evaluator *eval, Node *node, Node *zero, Node *savedNode) 
 {
@@ -377,6 +375,28 @@ int caseTimes1(Evaluator *eval, Node *node, Node *one, Node *savedNode)
     }
 
     return EXIT_SUCCESS;
+}
+
+int casePow0(Evaluator *eval, Node *node)
+{
+    ExpTreeErrors error = TREE_NO_ERROR;
+
+    if (VALUE_0(node))
+    {
+        if (error) return error;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int casePow1(Evaluator *eval, Node *node)
+{
+    ExpTreeErrors error = TREE_NO_ERROR;
+    
+    if (VALUE_1(node))
+    {
+        if (error) return error;
+    }
 }
 
 #undef CHANGED

@@ -3,8 +3,8 @@
 
 #include "tree_of_expressions.h"
 
-int treeGraphicDump     (Evaluator *eval);
-int writeTreeToDotFile  (Evaluator *eval, FILE *f);
+int treeGraphicDump(Evaluator *eval, Node *node);
+int writeTreeToDotFile(Evaluator *eval, Node *node, FILE *f);
 char *createDumpFileName(int fileNumber);
 
 int dotWriteNodes(Evaluator *eval, Node *node, FILE *f, int  rank);

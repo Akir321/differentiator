@@ -5,6 +5,6 @@
 
 extern FILE *LogFile;
 
-#define LOG(...) fprintf(LogFile, __VA_ARGS__)
+#define LOG(...) { fprintf(LogFile, __VA_ARGS__); fflush(LogFile); }
 
 #endif //__HTML_LOGFILE_H__

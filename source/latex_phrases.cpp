@@ -82,16 +82,16 @@ const char *getPrefix(Node *node)
 
     switch (node->data.operatorNum)
     {
-    case ADD:           PERSONAL(Sum);
-    case SUB:           PERSONAL(Dif);
-    case DIV:           PERSONAL(Div);
-    case POW:           PERSONAL(Pow);
-    
-    case MUL: case LN:
-    case SIN: case COS:        
-    case LOGAR:         personal = NULL;    break;
+        case ADD:           PERSONAL(Sum);
+        case SUB:           PERSONAL(Dif);
+        case DIV:           PERSONAL(Div);
+        case POW:           PERSONAL(Pow);
+        
+        case MUL: case LN:
+        case SIN: case COS:        
+        case LOGAR:         personal = NULL;    break;
 
-    default:            personal = NULL;    break;
+        default:            personal = NULL;    break;
     }
 
     int generalSize     = SIZEAR(General);

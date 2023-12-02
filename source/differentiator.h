@@ -24,6 +24,8 @@ int tryNodeSimplify(Evaluator *eval, Node *node);
 int caseTimes0(Evaluator *eval, Node *node, Node *zero);
 int casePlus0 (Evaluator *eval, Node *node, Node *zero, Node *savedNode);
 int caseTimes1(Evaluator *eval, Node *node, Node *one,  Node *savedNode);
+int casePow0  (Evaluator *eval, Node *node);
+int casePow1  (Evaluator *eval, Node *node);
 
 int  processArgv(int argC, const char *argV[], const char **fileInName, char **fileOutName);
 void pointToZero(char *str);
