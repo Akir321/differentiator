@@ -4,10 +4,11 @@
 #include "exp_tree_write.h"
 #include "exp_tree_read.h"
 #include "tree_graphic_dump.h"
+#include "recursive_descent_reading.h"
 
 #include "differentiator.h"
 
-const char *fileName = "trees_to_read/exp_tree_sin.txt";
+const char *fileName = "trees_to_read/exp_tree_ded.txt";
 
 const char *fileTex  = "exp_tree.tex";
 
@@ -18,9 +19,11 @@ int main()
 
     Evaluator evaluator = {};
     evaluatorCtor(&evaluator);
-    readTreeInfix(&evaluator, fileName);
+    //readTreeInfix(&evaluator, fileName);
 
-    treeGraphicDump(&evaluator);
+    evaluator.tree.root = getG("1000-7*100/(30+5*10-5*(100/50))+1");
+
+    treeGraphicDump(&evaluator, evaluator.tree.root);
 
     printTreePrefix(&evaluator, evaluator.tree.root, stdout);
     putchar('\n');
@@ -36,9 +39,12 @@ int main()
     treeCtor(&deriv.tree, derivative(&evaluator, evaluator.tree.root));
     nameTableCopy(&evaluator.names, &deriv.names);
 
-    treeGraphicDump(&deriv);
+    treeGraphicDump(&deriv, deriv.tree.root);
     printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
     putchar('\n');
+
+    ExpTreeErrors error = TREE_NO_ERROR;
+    printf("expression = %lg\n", expTreeEvaluate(&evaluator, evaluator.tree.root, &error));
 
     nameTableDump(&deriv.names, stdout);
 
@@ -50,7 +56,7 @@ int main()
     */
 
     expTreeSimplify(&deriv, deriv.tree.root);
-    treeGraphicDump(&deriv);
+    treeGraphicDump(&deriv, deriv.tree.root);
     printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
     putchar('\n');
 

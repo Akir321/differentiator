@@ -3,12 +3,13 @@
 
 #include "tree_of_expressions.h"
 
-int differentiate       (Evaluator *from, Evaluator *to);
+#define  __PRINT_TO_TEX__
+
+int differentiate       (Evaluator *from, Evaluator *to, bool writeToTex = false);
+Node *derivative        (Evaluator *eval, Node *node,    bool writeToTex = false);
+Node *processDifOperator(Evaluator *eval, Node *node,    bool writeToTex);
 
 Node *copy              (Evaluator *eval, Node *node);
-
-Node *derivative        (Evaluator *eval, Node *node);
-Node *processDifOperator(Evaluator *eval, Node *node);
 
 Node *difProcessLog (Evaluator *eval, Node *node);
 Node *difRrocessPow (Evaluator *eval, Node *node);

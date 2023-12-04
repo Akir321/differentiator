@@ -9,8 +9,6 @@
 #include "html_logfile.h"
 #include "differentiator.h"
 
-#define __PRINT_TO_TEX__
-
 #ifdef  __PRINT_TO_TEX__
 extern FILE *TexFile;
 #endif
@@ -33,8 +31,11 @@ extern const char *getPrefix(Node *node);
 #define cR     copy      (eval, node->right)
 #define cN     copy      (eval, node)
 
-#define dL     derivative(eval, node->left)
-#define dR     derivative(eval, node->right)
+#define dL_W     derivative(eval, node->left,  writeToTex)
+#define dR_W     derivative(eval, node->right, writeToTex)
+
+#define dL       derivative(eval, node->left)
+#define dR       derivative(eval, node->right)
 
 #define _ADD(left, right) NEW_NODE(EXP_TREE_OPERATOR, ADD, left, right)
 
@@ -58,15 +59,14 @@ extern const char *getPrefix(Node *node);
 #define VALUE_0(node) (canBeEvaluated(node) && equalDouble(expTreeEvaluate(eval, node, &error), 0))
 #define VALUE_1(node) (canBeEvaluated(node) && equalDouble(expTreeEvaluate(eval, node, &error), 1))
 
-
-int differentiate(Evaluator *from, Evaluator *to)
+int differentiate(Evaluator *from, Evaluator *to, bool writeToTex)
 {
     assert(to);
     assert(from);
 
     evaluatorCtor(to);
 
-    treeCtor(&to->tree, derivative(from, from->tree.root));
+    treeCtor(&to->tree, derivative(from, from->tree.root, writeToTex));
     nameTableCopy(&from->names, &to->names);
 
     return EXIT_SUCCESS;
@@ -84,7 +84,7 @@ Node *copy(Evaluator *eval, Node *node)
 #define VAR_NODE_NAME(node) eval->names.table[node->data.variableNum].name
 #define IS_X(node)          strcmp("x", VAR_NODE_NAME(node)) == 0
 
-Node *derivative(Evaluator *eval, Node *node)
+Node *derivative(Evaluator *eval, Node *node, bool writeToTex)
 {
     assert(eval);
     assert(node);
@@ -97,7 +97,7 @@ Node *derivative(Evaluator *eval, Node *node)
         case EXP_TREE_VARIABLE:     if (IS_X(node)) return VAR_NODE(1);
                                     else            return VAR_NODE(0);
     
-        case EXP_TREE_OPERATOR:     return processDifOperator(eval, node);
+        case EXP_TREE_OPERATOR:     return processDifOperator(eval, node, writeToTex);
 
         case EXP_TREE_NOTHING:      printf("ERROR: node type: nothing\n");
                                     return PtrPoison;
@@ -113,16 +113,19 @@ Node *derivative(Evaluator *eval, Node *node)
 
 #ifdef __PRINT_TO_TEX__
 
-#define DERIVATIVE(expression)                          \
-    {                                                   \
-        Node *deriv = expression;                       \
-                                                        \
-        printTreeToTexFile(eval, node,  TexFile, getPrefix(node)); \
-        fprintf(TexFile, " $\\Rightarrow$ ");           \
-        printTreeToTexFile(eval, deriv, TexFile, NULL); \
-        fprintf(TexFile, "\n\n");                       \
-                                                        \
-        return deriv;                                   \
+#define DERIVATIVE(expression)                                          \
+    {                                                                   \
+        Node *deriv = expression;                                       \
+                                                                        \
+        if (writeToTex)                                                 \
+        {                                                               \
+            printTreeToTexFile(eval, node,  TexFile, getPrefix(node));  \
+            fprintf(TexFile, " $\\Rightarrow$ ");                       \
+            printTreeToTexFile(eval, deriv, TexFile, NULL);             \
+            fprintf(TexFile, "\n\n");                                   \
+        }                                                               \
+                                                                        \
+        return deriv;                                                   \
     }
 
 #else
@@ -131,7 +134,7 @@ Node *derivative(Evaluator *eval, Node *node)
 
 #endif
 
-Node *processDifOperator(Evaluator *eval, Node *node)
+Node *processDifOperator(Evaluator *eval, Node *node, bool writeToTex)
 {
     assert(eval);
     assert(node);
@@ -139,23 +142,23 @@ Node *processDifOperator(Evaluator *eval, Node *node)
 
     switch (node->data.operatorNum)
     {
-        case ADD:   DERIVATIVE(_ADD(dL, dR))
+        case ADD:   DERIVATIVE(_ADD(dL_W, dR_W))
 
-        case SUB:   DERIVATIVE(_SUB(dL, dR))
+        case SUB:   DERIVATIVE(_SUB(dL_W, dR_W))
         
-        case MUL:   DERIVATIVE(_ADD(_MUL(dL, cR), _MUL(cL, dR)))
+        case MUL:   DERIVATIVE(_ADD(_MUL(dL_W, cR), _MUL(cL, dR_W)))
 
-        case DIV:   DERIVATIVE(_DIV(_SUB(_MUL(dL, cR), _MUL(cL, dR)), _MUL(cR, cR)))
+        case DIV:   DERIVATIVE(_DIV(_SUB(_MUL(dL_W, cR), _MUL(cL, dR_W)), _MUL(cR, cR)))
 
-        case LN:    DERIVATIVE(_DIV(dR, cR))
+        case LN:    DERIVATIVE(_DIV(dR_W, cR))
 
         case LOGAR: DERIVATIVE(difProcessLog(eval, node))
 
         case POW:   DERIVATIVE(difRrocessPow(eval, node))
 
-        case SIN:   DERIVATIVE(_MUL(dR, _COS(cR)))
+        case SIN:   DERIVATIVE(_MUL(dR_W, _COS(cR)))
 
-        case COS:   DERIVATIVE(_MUL(dR, _MUL(VAR_NODE(-1), _SIN(cR))))
+        case COS:   DERIVATIVE(_MUL(dR_W, _MUL(VAR_NODE(-1), _SIN(cR))))
 
         
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
@@ -397,6 +400,8 @@ int casePow1(Evaluator *eval, Node *node)
     {
         if (error) return error;
     }
+
+    return EXIT_SUCCESS;
 }
 
 #undef CHANGED

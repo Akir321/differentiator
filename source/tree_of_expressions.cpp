@@ -136,6 +136,19 @@ int nameTableFind(NameTable *names, const char *name)
     return IndexPoison;
 }
 
+int nameTableSetValue(NameTable *names, const char *name, double value)
+{
+    assert(names);
+    assert(name);
+
+    int index = nameTableFind(names, name);
+    if (index == IndexPoison) return IndexPoison;
+
+    names->table[index].value = value;
+
+    return index;
+}
+
 int nameTableDump(NameTable *names, FILE *f)
 {
     assert(names);

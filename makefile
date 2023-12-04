@@ -13,28 +13,30 @@ OBJ_DIR  = object/
 DMP_DIR  = gr_dump/
 LOG_DIR  = log/
 
-INCLUDES =  $(SRC_DIR)tree_of_expressions.h \
-			$(SRC_DIR)tree_graphic_dump.h   \
-			$(SRC_DIR)html_logfile.h        \
-			$(SRC_DIR)exp_tree_write.h      \
-			$(SRC_DIR)exp_tree_read.h       \
-			$(SRC_DIR)differentiator.h      \
-			$(SRC_DIR)prog_differentiator.h
+INCLUDES =  $(SRC_DIR)tree_of_expressions.h 	 	\
+			$(SRC_DIR)tree_graphic_dump.h   	 	\
+			$(SRC_DIR)html_logfile.h        	 	\
+			$(SRC_DIR)exp_tree_write.h      	 	\
+			$(SRC_DIR)exp_tree_read.h       	 	\
+			$(SRC_DIR)differentiator.h      	 	\
+			$(SRC_DIR)prog_differentiator.h 	 	\
+			$(SRC_DIR)recursive_descent_reading.h
 
-OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o \
-			$(OBJ_DIR)tree_graphic_dump.o   \
-			$(OBJ_DIR)html_logfile.o        \
-			$(OBJ_DIR)exp_tree_write.o      \
-			$(OBJ_DIR)exp_tree_read.o       \
-			$(OBJ_DIR)differentiator.o      \
-			$(OBJ_DIR)latex_phrases.o       \
-			$(OBJ_DIR)prog_differentiator.o 
+OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o 		\
+			$(OBJ_DIR)tree_graphic_dump.o   		\
+			$(OBJ_DIR)html_logfile.o        		\
+			$(OBJ_DIR)exp_tree_write.o      		\
+			$(OBJ_DIR)exp_tree_read.o       		\
+			$(OBJ_DIR)differentiator.o      		\
+			$(OBJ_DIR)latex_phrases.o       		\
+			$(OBJ_DIR)prog_differentiator.o 		\
+			$(OBJ_DIR)recursive_descent_reading.o 
 
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
          
-#all: test_exp_tree.exe
-all: differentiator.exe
+all: test_exp_tree.exe
+#all: differentiator.exe
 
 differentiator.exe: $(OBJ_DIR)main_differentiator.o $(OBJECTS)
 	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)
@@ -72,7 +74,15 @@ $(OBJ_DIR)latex_phrases.o: $(SRC_DIR)latex_phrases.cpp               $(INCLUDES)
 $(OBJ_DIR)prog_differentiator.o : $(SRC_DIR)prog_differentiator.cpp  $(INCLUDES)
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
+$(OBJ_DIR)recursive_descent_reading.o  : $(SRC_DIR)recursive_descent_reading.cpp  $(INCLUDES)
+	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 
+
+gnuplot1:
+	gnuplot gnuplot/test1.gpi
+
+gnuplot2:
+	gnuplot gnuplot/test2.gpi -persist
 
 
 

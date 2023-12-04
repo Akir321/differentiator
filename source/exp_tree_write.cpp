@@ -149,7 +149,7 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
         case DIV:    OPER("/");
         case LN:     OPER("ln");
         case LOGAR:  OPER("log");
-        case POW:    OPER("^");
+        case POW:    OPER("**");
         case SIN:    OPER("sin");
         case COS:    OPER("cos");
 
@@ -292,8 +292,8 @@ int printTreeInfixNoUselessBrackets(Evaluator *eval, Node *root, FILE *f)
         return EXIT_SUCCESS;
     }
 
-    PRINT_NODE(left);                      putc(' ', f);
-    printNodeSymbol(eval, root, f);        putc(' ', f);
+    PRINT_NODE(left);                      //putc(' ', f);
+    printNodeSymbol(eval, root, f);        //putc(' ', f);
     PRINT_NODE(right);
 
     return EXIT_SUCCESS;

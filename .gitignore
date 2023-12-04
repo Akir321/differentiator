@@ -40,6 +40,10 @@
 *_log.txt
 *.log
 
+# Function graphs
+*.gpi
+*.png
+
 
 questions.txt
 TODO.txt
