@@ -29,8 +29,8 @@ OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o 		\
 			$(OBJ_DIR)exp_tree_read.o       		\
 			$(OBJ_DIR)differentiator.o      		\
 			$(OBJ_DIR)latex_phrases.o       		\
-			$(OBJ_DIR)prog_differentiator.o 		\
-			$(OBJ_DIR)recursive_descent_reading.o 
+			$(OBJ_DIR)recursive_descent_reading.o   
+			#$(OBJ_DIR)prog_differentiator.o 		
 
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
@@ -38,7 +38,7 @@ DUMPS    =  $(DMP_DIR)*.dot                 \
 all: test_exp_tree.exe
 #all: differentiator.exe
 
-differentiator.exe: $(OBJ_DIR)main_differentiator.o $(OBJECTS)
+differentiator.exe: $(OBJ_DIR)main_differentiator.o $(OBJ_DIR)prog_differentiator.o $(OBJECTS)
 	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)
 
 test_exp_tree.exe:  $(OBJ_DIR)test_exp_tree.o       $(OBJECTS)

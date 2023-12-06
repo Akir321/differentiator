@@ -94,7 +94,10 @@ const char *getPrefix(Node *node)
         case POW:           PERSONAL(Pow);
         
         case MUL: case LN:
-        case SIN: case COS:        
+        case SIN: case COS:  
+        case L_BRACKET:
+        case R_BRACKET:
+        case NOT_OPER:      
         case LOGAR:         personal = NULL;    break;
 
         default:            personal = NULL;    break;

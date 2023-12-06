@@ -160,7 +160,8 @@ Node *processDifOperator(Evaluator *eval, Node *node, bool writeToTex)
 
         case COS:   DERIVATIVE(_MUL(dR_W, _MUL(VAR_NODE(-1), _SIN(cR))))
 
-        
+
+        case L_BRACKET: case R_BRACKET: case NOT_OPER:
         default:    printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
                     return PtrPoison;
     }
@@ -314,6 +315,7 @@ int tryNodeSimplify(Evaluator *eval, Node *node)
         case SIN: case COS:
             return EXIT_SUCCESS;
 
+        case L_BRACKET: case R_BRACKET: case NOT_OPER:
         default:
             printf("ERROR: unknown operator: %d\n", node->data.operatorNum);
             return UNKNOWN_OPERATOR;

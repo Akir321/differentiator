@@ -77,6 +77,10 @@ int printTreeOperator(ExpTreeOperators operatorType, FILE *f)
         case SIN:    OPER("sin");
         case COS:    OPER("cos");
 
+        case L_BRACKET: OPER("(");
+        case R_BRACKET: OPER(")");
+        
+        case NOT_OPER:
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
             return EXIT_FAILURE;
@@ -153,6 +157,10 @@ int printTreeOperatorSymbol(ExpTreeOperators operatorType, FILE *f)
         case SIN:    OPER("sin");
         case COS:    OPER("cos");
 
+        case L_BRACKET: OPER("(");
+        case R_BRACKET: OPER(")");
+
+        case NOT_OPER:
         default:
             LOG("ERROR: unknown ExpTree operator type: %d", operatorType);
             return EXIT_FAILURE;
@@ -258,6 +266,8 @@ int expTreeNodePriority(Node *node)
         case POW:
             return PR_POW;
         
+        case R_BRACKET: case L_BRACKET:
+        case NOT_OPER:
         default:
             return PR_UNKNOWN;
     }
@@ -389,6 +399,7 @@ int printSubTreeTexStyle(Evaluator *eval, Node *root, FILE *f)
                         PRINT_NODE(right);
                         return EXIT_SUCCESS;   
 
+        case L_BRACKET: case R_BRACKET: case NOT_OPER:
         default:        LOG("ERROR: unknown operator: %d\n", root->data.operatorNum);
                         return EXIT_FAILURE;
     }

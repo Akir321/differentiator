@@ -302,6 +302,10 @@ double NodeCalculate(double leftTree, double rightTree,
 
         case COS:       return cos(rightTree);
 
+        case L_BRACKET: case R_BRACKET: 
+                        return 0;
+
+        case NOT_OPER:
         default:        *error = UNKNOWN_OPERATOR;
                         return DataPoison;
     }

@@ -12,8 +12,20 @@ const char *fileName = "trees_to_read/exp_tree_ded.txt";
 
 const char *fileTex  = "exp_tree.tex";
 
-FILE *TexFile = fopen("dump_deriv.tex", "w");
+//const char *Expression = "(   314 +10  )";
+const char *Expression = " 100-  23*3-14  /7";
 
+//FILE *TexFile = fopen("dump_deriv.tex", "w");
+
+int main()
+{
+    Token *tokenArray = createTokenArray(Expression);
+    
+    printTokenArray(tokenArray, stdout);
+}
+
+
+/*
 int main()
 {
 
@@ -48,27 +60,30 @@ int main()
 
     nameTableDump(&deriv.names, stdout);
 
-    /*
+    //
     expTreeSimplifyConsts(&deriv, deriv.tree.root);
     treeGraphicDump(&deriv);
     printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
     putchar('\n');
-    */
+    
 
     expTreeSimplify(&deriv, deriv.tree.root);
     treeGraphicDump(&deriv, deriv.tree.root);
     printTreeInfixNoUselessBrackets(&deriv, deriv.tree.root, stdout);
     putchar('\n');
 
+    //
     FILE *f = fopen(fileTex, "w");
     printTreeTex(&evaluator, evaluator.tree.root, f);
     putc('\n', f);
     printTreeTex(&deriv, deriv.tree.root, f);
+    
 
     evaluatorDtor(&evaluator);
     evaluatorDtor(&deriv);
-    fclose(f);
+    //fclose(f);
 }
+*/
 
 /*
 printTreePrefix(&evaluator, evaluator.tree.root, stdout);

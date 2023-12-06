@@ -13,15 +13,18 @@ enum ExpTreeNodeType
 
 enum ExpTreeOperators
 {
-    ADD   = 1,
-    SUB   = 2,
-    MUL   = 3,
-    DIV   = 4,
-    LN    = 5,
-    LOGAR = 6,
-    POW   = 7,
-    SIN   = 8,
-    COS   = 9,
+    NOT_OPER  = 0,
+    ADD       = 1,
+    SUB       = 2,
+    MUL       = 3,
+    DIV       = 4,
+    LN        = 5,
+    LOGAR     = 6,
+    POW       = 7,
+    SIN       = 8,
+    COS       = 9,
+    R_BRACKET = 10,
+    L_BRACKET = 11,
 };
 
 union ExpTreeData
@@ -87,6 +90,7 @@ enum ExpTreeErrors
     NODE_TYPE_NOTHING = -3,
     LOG_NEGATIVE_ARG  = -4,
     LOG_BAD_BASE      = -5,
+    MEMORY_ERROR      = -6,
 };
 
 Node * const PtrPoison = (Node *)42;
