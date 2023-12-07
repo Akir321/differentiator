@@ -391,6 +391,20 @@ Node *getN(Token *tokenArray, int *arrPosition)
         return NEW_NODE(EXP_TREE_NUMBER, val, NULL, NULL);
     }
 
+    if (TOKEN_IS_OPER && TOKEN_IS(SUB))
+    {
+        (*arrPosition)++;
+        Node *val = getP(tokenArray, arrPosition);
+
+        if (val->type == EXP_TREE_NUMBER)
+        {
+            val->data.number = - val->data.number;
+            return val;
+        }
+
+        return _SUB(NULL, val);
+    }
+
     if (TOKEN_IS_NULL) return NULL;
     
     syntaxError(curToken, *arrPosition);
