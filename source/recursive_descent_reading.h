@@ -37,10 +37,13 @@ ExpTreeOperators getWordOperator(const char *word);
 int printTokenArray(Token *tokenArray, FILE *f);
 
 Node *getG(const char *str);
-Node *getE();
-Node *getT();
-Node *getP();
-Node *getN();
+
+Node *getE(Token *tokenArray, int *arrPosition);
+Node *getT(Token *tokenArray, int *arrPosition);
+Node *getP(Token *tokenArray, int *arrPosition);
+Node *getN(Token *tokenArray, int *arrPosition);
+
+int syntaxError(Token *token, int arrPosition);
 
 
 #endif //__RECURSIVE_DESCENT_READING_H__

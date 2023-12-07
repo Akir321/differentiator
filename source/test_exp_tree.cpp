@@ -13,15 +13,23 @@ const char *fileName = "trees_to_read/exp_tree_ded.txt";
 const char *fileTex  = "exp_tree.tex";
 
 //const char *Expression = "(   314 +10  )";
-const char *Expression = " 100-  23*3-14  /7";
+//const char *Expression = " 100-  23*3-14  /7";
+const char *Expression = "1000   -7 *100 /(      30\n\n+5 *10-5*(100/50)) +1 ";
 
 //FILE *TexFile = fopen("dump_deriv.tex", "w");
 
 int main()
 {
-    Token *tokenArray = createTokenArray(Expression);
-    
-    printTokenArray(tokenArray, stdout);
+    //Token *tokenArray = createTokenArray(Expression);
+    //printTokenArray(tokenArray, stdout);
+
+    Evaluator eval = {};
+    evaluatorCtor(&eval);
+
+    eval.tree.root = getG(Expression);
+    treeGraphicDump(&eval, eval.tree.root);
+
+    evaluatorDtor(&eval);
 }
 
 

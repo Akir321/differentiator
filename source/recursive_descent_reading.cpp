@@ -8,9 +8,10 @@
 #include "exp_tree_write.h"
 #include "recursive_descent_reading.h"
 #include "html_logfile.h"
+#include "tree_graphic_dump.h"
 
-const char *expression = NULL;
-int                  p = 0;
+//const char *expression = NULL;
+//int                  p = 0;
 
 #define syntax_assert(exp) if (!(exp)) printf("SYNTAX_ERROR: %s\n", #exp)
 
@@ -52,6 +53,15 @@ int                  p = 0;
 
 #define _COS(      right) NEW_NODE(EXP_TREE_OPERATOR, COS, NULL, right)
 
+/*
+Node *treeRecursiveDescentRead(const char *source)
+{
+    Token *tokenArray = createTokenArray(source);
+    if (!tokenArray) return NULL;
+
+    return getG(tokenArray);
+}
+*/
 
 
 Token *createTokenArray(const char *source)
@@ -283,93 +293,119 @@ int printTokenArray(Token *tokenArray, FILE *f)
     return EXIT_SUCCESS;
 }
 
+#undef SET_TOKEN
+
 
 
 
 
 Node *getG(const char *str)
 {
-    expression = str;
-    p = 0;
+    Token *tokenArray = createTokenArray(str);
+    if (!tokenArray) return NULL;
 
-    Node *val = getE();
+    int arrPosition = 0;
 
-    syntax_assert(expression[p] == '\0');
+    Node *val = getE(tokenArray, &arrPosition);
+
+    syntax_assert(tokenArray[arrPosition].type == EXP_TREE_NOTHING);
     return val;
 }
 
-Node *getE()
+
+#define TOKEN_IS_NUM  (tokenArray[*arrPosition].type == EXP_TREE_NUMBER)
+#define TOKEN_IS_OPER (tokenArray[*arrPosition].type == EXP_TREE_OPERATOR)
+#define TOKEN_IS_NULL (tokenArray[*arrPosition].type == EXP_TREE_NOTHING)
+
+#define TOKEN_IS(oper) (tokenArray[*arrPosition].data.operatorNum == oper)
+
+Node *getE(Token *tokenArray, int *arrPosition)
 {
-    Node *val = getT();
+    Node *val = getT(tokenArray, arrPosition);
 
-    while (expression[p] == '+' || expression[p] == '-')
+    while (TOKEN_IS_OPER && (TOKEN_IS(ADD) || TOKEN_IS(SUB)))
     {
-        char oper = expression[p];
-        p++;
+        int oper = tokenArray[*arrPosition].data.operatorNum;
+        (*arrPosition)++;
 
-        Node *val2 = getT();
+        Node *val2 = getT(tokenArray, arrPosition);
+    
         switch (oper)
         {
-            case '+':   val = _ADD(val, val2); break;
-            case '-':   val = _SUB(val, val2); break;
+            case ADD:   val = _ADD(val, val2); break;
+            case SUB:   val = _SUB(val, val2); break;
             default:    val = PtrPoison;       break;
         }
     }
     return val;
 }
 
-Node *getT()
+Node *getT(Token *tokenArray, int *arrPosition)
 {
-    Node *val = getN();
+    Node *val = getP(tokenArray, arrPosition);
 
-    while (expression[p] == '*' || expression[p] == '/')
+    while (TOKEN_IS_OPER && (TOKEN_IS(MUL) || TOKEN_IS(DIV)))
     {
-        char oper = expression[p];
-        p++;
+        int oper = tokenArray[*arrPosition].data.operatorNum;
+        (*arrPosition)++;
 
-        Node *val2 = getN();
+        Node *val2 = getP(tokenArray, arrPosition);
+
         switch (oper)
         {
-            case '*':   val = _MUL(val, val2); break;
-            case '/':   val = _DIV(val, val2); break;
+            case MUL:   val = _MUL(val, val2); break;
+            case DIV:   val = _DIV(val, val2); break;
             default:    val = PtrPoison;       break;
         }
     }
     return val;
 }
 
-Node *getP()
+Node *getP(Token *tokenArray, int *arrPosition)
 {
-    if (expression[p] == '(')
+    if (TOKEN_IS_OPER && TOKEN_IS(L_BRACKET))
     {
-        p++;
-        Node *val = getE();
+        (*arrPosition)++;
+        Node *val = getE(tokenArray, arrPosition);
 
-        syntax_assert(expression[p] == ')');
-        p++;
+        syntax_assert(TOKEN_IS_OPER && TOKEN_IS(R_BRACKET));
+        (*arrPosition)++;
 
         return val;
     }
     else
     {
-        return getN();
+        return getN(tokenArray, arrPosition);
     }
 }
 
-Node *getN()
+Node *getN(Token *tokenArray, int *arrPosition)
 {
-    int val = 0;
-    int old_p = p;
+    Token *curToken = tokenArray + *arrPosition;
 
-    while ('0' <= expression[p] && expression[p] <= '9')
-    {
-        val = val * 10 + expression[p] - '0';
-        p++;
+    if (TOKEN_IS_NUM)
+    {   
+        double val = curToken->data.number;
+        (*arrPosition)++;
+
+        return NEW_NODE(EXP_TREE_NUMBER, val, NULL, NULL);
     }
 
-    syntax_assert(old_p < p);
-    //printf("old = %d, p = %d, char = %c\n", old_p, p, expression[p]);
-    return NEW_NODE(EXP_TREE_NUMBER, val, NULL, NULL);
+    if (TOKEN_IS_NULL) return NULL;
+    
+    syntaxError(curToken, *arrPosition);
+    return PtrPoison;
+}
+
+int syntaxError(Token *token, int arrPosition)
+{
+    assert(token);
+
+    LOG("SYNTAX_ERROR: in line %d starting from position %d:\n  token with type %d and data (in int) %d\n", 
+        token->line, token->startPosition, token->type, token->data.operatorNum);
+    LOG("   Token Array pos = %d\n", arrPosition);
+
+    return EXIT_SUCCESS;
 }
 
 //"1000-7*100/(30+5*10-5*(100/50))+1"
