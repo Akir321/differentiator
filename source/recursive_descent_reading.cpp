@@ -345,14 +345,14 @@ Node *getE(Token *tokenArray, int *arrPosition)
 
 Node *getT(Token *tokenArray, int *arrPosition)
 {
-    Node *val = getP(tokenArray, arrPosition);
+    Node *val = getPow(tokenArray, arrPosition);
 
     while (TOKEN_IS_OPER && (TOKEN_IS(MUL) || TOKEN_IS(DIV)))
     {
         int oper = tokenArray[*arrPosition].data.operatorNum;
         (*arrPosition)++;
 
-        Node *val2 = getP(tokenArray, arrPosition);
+        Node *val2 = getPow(tokenArray, arrPosition);
 
         switch (oper)
         {
@@ -362,6 +362,24 @@ Node *getT(Token *tokenArray, int *arrPosition)
         }
     }
     return val;
+}
+
+Node *getPow(Token *tokenArray, int *arrPosition)
+{
+    Node *base = getP(tokenArray, arrPosition);
+
+    if (TOKEN_IS_OPER && TOKEN_IS(POW))
+    {
+        Token *curToken = tokenArray + *arrPosition;
+        (*arrPosition)++;
+
+        Node *deg = getP(tokenArray, arrPosition);
+        if (!deg) { syntaxError(curToken, *arrPosition); return NULL; }
+
+        return _POW(base, deg);
+    }
+
+    return base;
 }
 
 Node *getP(Token *tokenArray, int *arrPosition)
@@ -392,8 +410,8 @@ Node *getU(Token *tokenArray, int *arrPosition)
         {
             (*arrPosition)++;
 
-            Node *val1 = getP(tokenArray, arrPosition);
-            Node *val2 = getP(tokenArray, arrPosition);
+            Node *val1 = getPow(tokenArray, arrPosition);
+            Node *val2 = getPow(tokenArray, arrPosition);
             if (!val1 || !val2) { syntaxError(curToken, *arrPosition); return NULL; }
 
             return NEW_NODE(EXP_TREE_OPERATOR, LOGAR, val1, val2);
@@ -402,7 +420,7 @@ Node *getU(Token *tokenArray, int *arrPosition)
         int oper = tokenArray[*arrPosition].data.operatorNum;
         (*arrPosition)++;
 
-        Node *val = getP(tokenArray, arrPosition);
+        Node *val = getPow(tokenArray, arrPosition);
         if (!val) { syntaxError(curToken, *arrPosition); return NULL; }
 
         switch (oper)

@@ -43,6 +43,7 @@ Node *getT(Token *tokenArray, int *arrPosition);
 Node *getP(Token *tokenArray, int *arrPosition);
 Node *getU(Token *tokenArray, int *arrPosition);
 Node *getN(Token *tokenArray, int *arrPosition);
+Node *getPow(Token *tokenArray, int *arrPosition);
 
 int syntaxError(Token *token, int arrPosition);
 
