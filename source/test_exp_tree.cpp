@@ -14,7 +14,10 @@ const char *fileTex  = "exp_tree.tex";
 
 //const char *Expression = "-(  - 314 +10  )";
 //const char *Expression = " 100-  23*3-14  /7";
-const char *Expression = "1000   -7 *100 /-(      30\n\n+5 *10+-5*(100/50)) +1 ";
+//const char *Expression = "1000   -7 *100 /-(      30\n\n+5 *10+-5*(100/50)) +1 ";
+//const char *Expression = " 100 *sin(2)-  23*cos(8-5*3)-14  /7+sin";
+
+const char *Expression = " 7- log (3-1) (3/2+6*7) -(5-6)";
 
 //FILE *TexFile = fopen("dump_deriv.tex", "w");
 

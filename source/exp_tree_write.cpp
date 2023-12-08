@@ -251,7 +251,12 @@ int expTreeNodePriority(Node *node)
     }
     if (node->type == EXP_TREE_VARIABLE) return PR_NUMBER;
 
-    switch (node->data.operatorNum)
+    return expTreeOperatorPriority(node->data.operatorNum);
+}
+
+int expTreeOperatorPriority(ExpTreeOperators oper)
+{
+    switch (oper)
     {
         case ADD: case SUB:
             return PR_ADD_SUB;

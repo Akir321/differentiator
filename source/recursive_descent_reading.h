@@ -41,6 +41,7 @@ Node *getG(const char *str);
 Node *getE(Token *tokenArray, int *arrPosition);
 Node *getT(Token *tokenArray, int *arrPosition);
 Node *getP(Token *tokenArray, int *arrPosition);
+Node *getU(Token *tokenArray, int *arrPosition);
 Node *getN(Token *tokenArray, int *arrPosition);
 
 int syntaxError(Token *token, int arrPosition);

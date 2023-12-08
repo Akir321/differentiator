@@ -319,6 +319,9 @@ Node *getG(const char *str)
 
 #define TOKEN_IS(oper) (tokenArray[*arrPosition].data.operatorNum == oper)
 
+#define TOKEN_PRIORITY_IS(oper)\
+    (expTreeOperatorPriority(curToken->data.operatorNum) == oper)
+
 Node *getE(Token *tokenArray, int *arrPosition)
 {
     Node *val = getT(tokenArray, arrPosition);
@@ -375,8 +378,45 @@ Node *getP(Token *tokenArray, int *arrPosition)
     }
     else
     {
-        return getN(tokenArray, arrPosition);
+        return getU(tokenArray, arrPosition);
     }
+}
+
+Node *getU(Token *tokenArray, int *arrPosition)
+{
+    Token *curToken = tokenArray + *arrPosition;
+
+    if (TOKEN_IS_OPER && TOKEN_PRIORITY_IS(PR_UNARY))
+    {
+        if (TOKEN_IS(LOGAR))
+        {
+            (*arrPosition)++;
+
+            Node *val1 = getP(tokenArray, arrPosition);
+            Node *val2 = getP(tokenArray, arrPosition);
+            if (!val1 || !val2) { syntaxError(curToken, *arrPosition); return NULL; }
+
+            return NEW_NODE(EXP_TREE_OPERATOR, LOGAR, val1, val2);
+        }
+
+        int oper = tokenArray[*arrPosition].data.operatorNum;
+        (*arrPosition)++;
+
+        Node *val = getP(tokenArray, arrPosition);
+        if (!val) { syntaxError(curToken, *arrPosition); return NULL; }
+
+        switch (oper)
+        {
+            case SIN:   return _SIN(val);
+            case COS:   return _COS(val);
+            case LN:    return _LN (val);
+        
+            default:    syntaxError(curToken, *arrPosition);
+                        return PtrPoison;
+        }
+    }
+
+    return getN(tokenArray, arrPosition);
 }
 
 Node *getN(Token *tokenArray, int *arrPosition)

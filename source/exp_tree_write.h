@@ -15,6 +15,8 @@ int printTreePrefix (Evaluator *eval, Node *root, FILE *f);
 int printTreeInfix  (Evaluator *eval, Node *root, FILE *f);
 int printTreePostfix(Evaluator *eval, Node *root, FILE *f);
 
+int expTreeOperatorPriority(ExpTreeOperators oper);
+
 int expTreeNodePriority(Node *node);
 bool isCommutative     (Node *node);
 
