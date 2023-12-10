@@ -35,11 +35,11 @@ OBJECTS  =  $(OBJ_DIR)tree_of_expressions.o 		\
 DUMPS    =  $(DMP_DIR)*.dot                 \
 			$(DMP_DIR)*.png
          
-all: test_exp_tree.exe
-#all: differentiator.exe
+#all: test_exp_tree.exe
+all: differentiator.exe
 
 differentiator.exe: $(OBJ_DIR)main_differentiator.o $(OBJ_DIR)prog_differentiator.o $(OBJECTS)
-	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)
+	$(CXX) $(OBJECTS) $< $(OBJ_DIR)prog_differentiator.o -o $@ $(CXX_FLAGS)
 
 test_exp_tree.exe:  $(OBJ_DIR)test_exp_tree.o       $(OBJECTS)
 	$(CXX) $(OBJECTS) $< -o $@ $(CXX_FLAGS)

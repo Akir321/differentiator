@@ -75,7 +75,7 @@ enum ExpTreeOperatorPriorities
     PR_NEG_NUMBER = 1,
     PR_ADD_SUB    = 2,
     PR_MUL_DIV    = 4,
-    PR_UNARY      = 23,
+    PR_UNARY      = 103,
     PR_POW        = 50,
     PR_NUMBER     = 100,
     PR_VARIABLE   = 101,

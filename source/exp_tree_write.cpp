@@ -322,6 +322,8 @@ int printNodeUsefulBrackets(Evaluator *eval, Node *node, Node *parent, FILE *f,
     CHECK_POISON_PTR(node);
     CHECK_POISON_PTR(parent);
 
+    if (!node) return EXIT_SUCCESS;
+
     int parentPriority = expTreeNodePriority(parent);
     int nodePriority   = expTreeNodePriority(node);
 

@@ -7,6 +7,7 @@
 #include "exp_tree_read.h"
 #include "prog_differentiator.h"
 #include "tree_graphic_dump.h"
+#include "recursive_descent_reading.h"
 
 
 FILE *TexFile = {};
@@ -27,7 +28,7 @@ int main(int argc, const char *argv[])
     Evaluator function = {};
     evaluatorCtor(&function);
 
-    if (readTreeInfix(&function, fileInName)) { perror("couldn't read tree:"); return 0; }
+    if (readTreeFromFileRecursive(&function, fileInName)) { perror("couldn't read tree:"); return 0; }
     treeGraphicDump(&function, function.tree.root);
 
     TexFile = fopen(fileOutName,  "w");
@@ -43,3 +44,4 @@ int main(int argc, const char *argv[])
 //.\differentiator.exe trees_to_read/exp_tree_pow.txt
 //.\differentiator.exe trees_to_read/exp_tree_logar.txt
 //.\differentiator.exe trees_to_read/exp_tree_ded.txt
+//.\differentiator.exe trees_to_read/exp_tree_normal.txt
