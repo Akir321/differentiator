@@ -12,6 +12,8 @@ const char *fileName = "trees_to_read/exp_tree_ded.txt";
 
 const char *fileTex  = "exp_tree.tex";
 
+const char *fileRec = "trees_to_read/exp_tree_normal.txt";
+
 //const char *Expression = "-(  - 314 +10  )";
 //const char *Expression = " 100-  23*3-14  /7";
 //const char *Expression = "1000   -7 *100 /-(      30\n\n+5 *10+-5*(100/50)) +1 ";
@@ -26,9 +28,10 @@ int main()
     //printTokenArray(tokenArray, stdout);
 
     Evaluator eval = {};
-    evaluatorCtor(&eval);
+    //evaluatorCtor(&eval);
 
-    eval.tree.root = getG(Expression);
+    //eval.tree.root = getG(Expression);
+    readTreeFromFileRecursive(&eval, fileRec);
     treeGraphicDump(&eval, eval.tree.root);
 
     printTreeInfixNoUselessBrackets(&eval, eval.tree.root, stdout);

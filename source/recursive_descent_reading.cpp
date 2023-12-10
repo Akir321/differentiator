@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/stat.h>
 
 #include "tree_of_expressions.h"
 #include "exp_tree_write.h"
@@ -64,7 +65,7 @@ Node *treeRecursiveDescentRead(const char *source)
 */
 
 
-Token *createTokenArray(const char *source)
+Token *createTokenArray(Evaluator *eval, const char *source)
 {
     assert(source);
 
@@ -80,7 +81,7 @@ Token *createTokenArray(const char *source)
         LOG("\nreadBuf pos = %d\n", readBuf.position);
         LOG( "Tokenarr pos = %d\n", arrPosition);
 
-        int error = getToken(buf + arrPosition, &readBuf);
+        int error = getToken(eval, buf + arrPosition, &readBuf);
         printTokenArray(buf, LogFile);
         if (error) { LOG("getToken: ERROR occured: %d\n", error); return NULL; }
 
@@ -90,6 +91,46 @@ Token *createTokenArray(const char *source)
     free(readBuf.str);
 
     return buf;
+}
+
+int readTreeFromFileRecursive(Evaluator *eval, const char *fileName)
+{
+    assert(eval);
+    assert(fileName);
+
+    nameTableCtor(&eval->names);
+
+    int size = fileSize(fileName);
+    char *text = (char *)calloc(size + 1, sizeof(char));
+    if (!text) return MEMORY_ERROR;
+
+    FILE *f = fopen(fileName, "r");
+    if (!f) return EXIT_FAILURE;
+
+    fread(text, sizeof(char), size, f);
+
+    Node *root = getG(eval, text);
+    fclose(f);
+    free(text);
+
+    if (!root) return EXIT_FAILURE;
+
+    eval->tree.root = root;
+    eval->tree.size = treeSize(eval->tree.root);
+
+    return EXIT_SUCCESS;
+}
+
+
+int fileSize(const char *name)
+{
+    assert(name);
+
+    struct stat stats = {};
+    if (stat(name, &stats) == -1)  return -1;
+
+    int size = stats.st_size;
+    return size;
 }
 
 
@@ -103,7 +144,7 @@ Token *createTokenArray(const char *source)
     readBuf->position++;    
 
 
-int getToken(Token *token, ReadBuf *readBuf)
+int getToken(Evaluator *eval, Token *token, ReadBuf *readBuf)
 {
     assert(token);
     assert(readBuf);
@@ -128,7 +169,7 @@ int getToken(Token *token, ReadBuf *readBuf)
 
         case ' ':  case '\n':
         case '\t': case '\r':   skipSpaces(readBuf);
-                                getToken(token, readBuf);
+                                getToken(eval, token, readBuf);
                                 return EXIT_SUCCESS;
 
         case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g':
@@ -136,7 +177,7 @@ int getToken(Token *token, ReadBuf *readBuf)
         case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': 
         case 'v': case 'w': case 'x': case 'y': case 'z':
         {
-            caseLetter(token, readBuf); return EXIT_SUCCESS;
+            caseLetter(eval, token, readBuf); return EXIT_SUCCESS;
         }
 
         default:    LOG("ERROR: unknown operator: %d\n\tSYNTAX_ERROR since line %d, position %d\n", 
@@ -214,8 +255,12 @@ int caseNumber(Token *token, ReadBuf *readBuf)
 
     return EXIT_SUCCESS;
 }
+#undef SET_TOKEN
 
-int caseLetter(Token *token, ReadBuf *readBuf)
+#define SET_TOKEN(type, value)\
+    setToken(token, readBuf->line, linePosition, type, createNodeData(type, value))
+
+int caseLetter(Evaluator *eval, Token *token, ReadBuf *readBuf)
 {
     assert(token);
     assert(readBuf);
@@ -236,15 +281,18 @@ int caseLetter(Token *token, ReadBuf *readBuf)
 
     ExpTreeOperators op = getWordOperator(word);
     if (!op) 
-    { 
-        LOG("ERROR: unknown word: %s on line %d position %d", word, readBuf->line, linePosition)
-        return UNKNOWN_OPERATOR;
+    {
+        int index = nameTableFind(&eval->names, word);
+        if (index == IndexPoison) index = nameTableAdd(&eval->names, word, 0);
+
+        SET_TOKEN(EXP_TREE_VARIABLE, index);
+        return EXIT_SUCCESS;
     }
     
     SET_TOKEN(EXP_TREE_OPERATOR, op);
-
     return EXIT_SUCCESS;
 }
+#undef SET_TOKEN
 
 ExpTreeOperators getWordOperator(const char *word)
 {
@@ -281,7 +329,11 @@ int printTokenArray(Token *tokenArray, FILE *f)
                 putc('\n', f);
                 break;
 
-            case EXP_TREE_VARIABLE: case EXP_TREE_NOTHING:
+            case EXP_TREE_VARIABLE: 
+                fprintf(f, " var%d\n", tokenArray[i].data.variableNum);
+                break;
+            
+            case EXP_TREE_NOTHING:
                 break;
 
             default: printf("ERROR: incorrect operator type: %d\n", tokenArray[i].data.operatorNum);
@@ -293,15 +345,14 @@ int printTokenArray(Token *tokenArray, FILE *f)
     return EXIT_SUCCESS;
 }
 
-#undef SET_TOKEN
 
 
 
 
 
-Node *getG(const char *str)
+Node *getG(Evaluator *eval, const char *str)
 {
-    Token *tokenArray = createTokenArray(str);
+    Token *tokenArray = createTokenArray(eval, str);
     if (!tokenArray) return NULL;
 
     int arrPosition = 0;
@@ -316,6 +367,7 @@ Node *getG(const char *str)
 #define TOKEN_IS_NUM  (tokenArray[*arrPosition].type == EXP_TREE_NUMBER)
 #define TOKEN_IS_OPER (tokenArray[*arrPosition].type == EXP_TREE_OPERATOR)
 #define TOKEN_IS_NULL (tokenArray[*arrPosition].type == EXP_TREE_NOTHING)
+#define TOKEN_IS_VAR  (tokenArray[*arrPosition].type == EXP_TREE_VARIABLE)
 
 #define TOKEN_IS(oper) (tokenArray[*arrPosition].data.operatorNum == oper)
 
@@ -447,6 +499,14 @@ Node *getN(Token *tokenArray, int *arrPosition)
         (*arrPosition)++;
 
         return NEW_NODE(EXP_TREE_NUMBER, val, NULL, NULL);
+    }
+
+    if (TOKEN_IS_VAR)
+    {
+        int index = curToken->data.variableNum;
+        (*arrPosition)++;
+
+        return NEW_NODE(EXP_TREE_VARIABLE, index, NULL, NULL);
     }
 
     if (TOKEN_IS_OPER && TOKEN_IS(SUB))
