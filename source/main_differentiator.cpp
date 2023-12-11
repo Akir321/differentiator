@@ -45,3 +45,7 @@ int main(int argc, const char *argv[])
 //.\differentiator.exe trees_to_read/exp_tree_logar.txt
 //.\differentiator.exe trees_to_read/exp_tree_ded.txt
 //.\differentiator.exe trees_to_read/exp_tree_normal.txt
+
+//(((_cos (((_15_) * (_x_)) + (_6_))) ^ (_3_)) + (_sin (((_x_) ^ (_3_)) + (_9_))))
+
+//, 0 + (1)*x + (0)*x**2 + (0)*x**3 title "taylor" lc rgb "orange"

@@ -3,7 +3,7 @@
 
 #include "tree_of_expressions.h"
 
-#define  __PRINT_TO_TEX_
+#define  __PRINT_TO_TEX__
 
 int differentiate       (Evaluator *from, Evaluator *to, bool writeToTex = false);
 Node *derivative        (Evaluator *eval, Node *node,    bool writeToTex = false);

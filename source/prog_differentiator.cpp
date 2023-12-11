@@ -132,12 +132,51 @@ int taylor(Evaluator *function, Evaluator *deriv1, Evaluator *deriv2, Evaluator 
 
 int taylorMakePics(Evaluator *function, double func, double d1, double d2, double d3)
 {
+    fprintf(TexFile, "Итак, приступим:\n\n");
+
+    printTaylor(1, function, func, d1, 0, 0);
     gnuplotMakeGraph(1, function, func, d1, 0, 0);
+
+    printTaylor(2, function, func, d1, d2 / 2, 0);
     gnuplotMakeGraph(2, function, func, d1, d2 / 2, 0);
+
+    printTaylor(3, function, func, d1, d2 / 2, d3 / 6);
     gnuplotMakeGraph(3, function, func, d1, d2 / 2, d3 / 6);
 
     return EXIT_SUCCESS;
 }
+
+#define PRINT_KOEFF(koeff, kNum, o, prev)                       \
+    if (!equalDouble(koeff, 0))                                 \
+    {                                                           \
+        if (koeff < 0)    fprintf(TexFile, "%lg" o " ", koeff); \
+                                                                \
+        if (!equalDouble(prev, 0)) fprintf(TexFile, " + ");     \
+                                                                \
+        if (equalDouble(koeff, 1)) fprintf(TexFile,  o " ");    \
+        else if (koeff > 0)        fprintf(TexFile, " %lg" o " ", koeff);\
+    }                                                           \
+    if (power == kNum)                                          \
+    {                                                           \
+        fprintf(TexFile, "+o(" o ")$\n\n");                     \
+        return EXIT_SUCCESS;                                    \
+    }                                           
+
+int printTaylor(int power, Evaluator *function, double func, double k1, double k2, double k3)
+{
+    assert(function);
+
+    fprintf(TexFile, "$f(x) = ");
+    if (!equalDouble(func, 0)) fprintf(TexFile, "%lg ", func);
+
+    PRINT_KOEFF(k1, 1, "x", 0);
+    PRINT_KOEFF(k2, 2, "x^2", k1);
+    PRINT_KOEFF(k3, 3, "x^3", k2);
+
+    return EXIT_SUCCESS;
+}
+
+#undef PRINT_KOEFF
 
 int gnuplotMakeGraph(int power, Evaluator *function, double func, double k1, double k2, double k3)
 {
@@ -157,7 +196,7 @@ int gnuplotMakeGraph(int power, Evaluator *function, double func, double k1, dou
     __mingw_asprintf(&fileName, "gnuplot/graph%d.gpi", power);
     FILE *f = fopen(fileName, "w");
 
-    fprintf(f, GNUPLOT_FORMAT, x0 - 0.1, x0 + 0.1, power);
+    fprintf(f, GNUPLOT_FORMAT, x0 - 1.0, x0 + 1.0, power);
     fprintf(f, "plot ");
     printTreeInfixNoUselessBrackets(function, function->tree.root, f);
     fprintf(f, " title \"function\" lc rgb \"red\", ");

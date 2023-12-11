@@ -13,6 +13,8 @@ int taylorMakePics(Evaluator *function, double func, double d1, double d2, doubl
 
 int gnuplotMakeGraph(int power, Evaluator *function, double func, double k1, double k2, double k3);
 
+int printTaylor(int power, Evaluator *function, double func, double k1, double k2, double k3);
+
 int taylor(Evaluator *function, Evaluator *deriv1, Evaluator *deriv2, Evaluator *deriv3);
 
 #endif //__PROG_DIFFERENTIATOR_H__
